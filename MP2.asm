@@ -82,29 +82,35 @@ DIV_DONE    RET
 ;input R3, R4 (R3^R4)
 ;out R0
 EXP
-    AND R6,R6,#0    ;clear R6 to use for temp register
+    ST R6,EXP_SAVE_R6
+    ST R5,EXP_SAVE_R5
+
     ADD R6,R3,#0    ;load base to R6
     ADD R0,R3,R4    ;R0=R3+R4
     ;BRz INVALID     ;if R0=0, R3=R4=0, operation is invalid
     ADD R4,R4,#0    
-    BRp OUTER_LOOP  ;check if the exponent is 0
+    BRp EXP_OUTER_LOOP  ;check if the exponent is 0
     AND R0,R0,#0    ;clear R0
     ADD R0,R0,#1    ;output should be 1 if exp is 0
+    LD R6,EXP_SAVE_R6
     RET
-    BRnzp exp_done
-OUTER_LOOP
+EXP_OUTER_LOOP
     ADD R4,R4,#-1   ;use R4 as a counter for the multiplication sequence
     BRz exp_done    
-    ADD R0,R3,#0    ;load base to R0 for counter
-INNER_LOOP
+    ADD R0,R6,#0    ;load base to R0 for counter
+    ADD R5,R3,#0    ;update the addition number
+EXP_INNER_LOOP
     ADD R0,R0,#-1   ;commencing multiplication sequence, decrement counter
-    BRz OUTER_LOOP
-    ADD R6,R3,R6    ;store value to R6
-    BRnzp INNER_LOOP
+    BRz EXP_OUTER_LOOP
+    ADD R3,R5,R3    ;update value of R3
+    BRnzp EXP_INNER_LOOP
 exp_done
-    ADD R0,R6,#0    ;load final result to R0
+    ADD R0,R3,#0    ;load final result to R0
+    LD R5,EXP_SAVE_R5
+    LD R6,EXP_SAVE_R6
     RET
-    
+EXP_SAVE_R5 .BLKW #1
+EXP_SAVE_R6 .BLKW #1    
     
 ;your code goes here
     
