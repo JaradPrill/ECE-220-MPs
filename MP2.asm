@@ -82,18 +82,29 @@ DIV_DONE    RET
 ;input R3, R4 (R3^R4)
 ;out R0
 EXP
+    AND R6,R6,#0    ;clear R6 to use for temp register
+    ADD R6,R3,#0    ;load base to R6
     ADD R0,R3,R4    ;R0=R3+R4
-    BRz INVALID    ;if R0=0, R3=R4=0, operation is invalid
+    ;BRz INVALID     ;if R0=0, R3=R4=0, operation is invalid
     ADD R4,R4,#0    
-    BRp EXP_NOT0    ;check if the exponent is 0
-    AND R3,R3,#0    ;clear R3
-    ADD R3,R3,#1    ;output should be 1 if exp is 0
+    BRp OUTER_LOOP  ;check if the exponent is 0
+    AND R0,R0,#0    ;clear R0
+    ADD R0,R0,#1    ;output should be 1 if exp is 0
+    RET
     BRnzp exp_done
-EXP_NOT0
-    ADD R4,R4,#-1
+OUTER_LOOP
+    ADD R4,R4,#-1   ;use R4 as a counter for the multiplication sequence
+    BRz exp_done    
     ADD R0,R3,#0    ;load base to R0 for counter
-    ADD R3,R3,R3    ;commencing multiplication sequence
-    ADD R3,R3,#-1
+INNER_LOOP
+    ADD R0,R0,#-1   ;commencing multiplication sequence, decrement counter
+    BRz OUTER_LOOP
+    ADD R6,R3,R6    ;store value to R6
+    BRnzp INNER_LOOP
+exp_done
+    ADD R0,R6,#0    ;load final result to R0
+    RET
+    
     
 ;your code goes here
     
