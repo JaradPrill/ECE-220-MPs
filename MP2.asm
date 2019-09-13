@@ -5,7 +5,10 @@
 .ORIG x3000
     
 ;your code goes here
-    
+NEXT_CHAR	
+	GETC
+	JSR EVALUATE
+	BRnzp NEXT_CHAR  
 
 
 
@@ -31,6 +34,8 @@ PRINT_HEX
 
 			AND R0, R0, #0
 			AND R3, R3, #0
+			JSR POP
+			ADD R3,R0,#0
 			AND R1, R1, #0 	;Char counter
 			ADD R1, R1, #4	
 char_loop	BRz done		;if 4 chars printed, then finish
@@ -64,10 +69,114 @@ done        HALT
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;R0 - character input from keyboard
-;R6 - current numerical output
+;R5 - current numerical output
 ;
 ;
 EVALUATE
+	ST R7,SAVE_R7
+	OUT
+
+;Check if character is =
+	LD R6, EQUALS	;Loads EQUALS to temp register
+	NOT R6,R6	
+	ADD R6,R6,#1	;Negates EQUALS
+	ADD R6,R0,R6	;Checks if input is equal char
+	BRnp SPACE_CHECK
+
+;Check if expression is valid
+	LD R6,STACK_TOP	;Loads STACK_TOP to temp
+	AD R6,R6,#1	;Adds one to Stack top
+	LD R5,STACK_START	;
+	NOT R5,R5
+	ADD R5,R5,#1
+	ADD R6,R6,R5		
+	BRz PRINT_HEX	;If expression is valid Print hex
+
+INVALID_EXP
+	LD R0,INVALID	;
+	OUTS
+	HALT
+
+
+;Check if char is space
+SPACE_CHECK
+	LD R6, SPACE	;Load SPACE to temp register 
+	NOT R6,R6	
+	ADD R6,R6,#1	;Negates SPACE
+	ADD R6,R0,R6	;Checks if input is space char
+	RET
+
+;Check if is digit
+	LD R4,NINE	;
+	LD R3,ZERO	;
+	NOT R4,R4
+	ADD R4,R4,#1	;
+	NOT R3,R3
+	ADD R3,R3,#1	;
+	ADD R4,R4,R0
+	BRp OPERATORS	;
+	ADD R3,R3,R0
+	BRn OPERATORS
+	PUSH
+	RET
+
+OPERATORS
+;Pops two numbers to be operated on
+;Prints invalid expression if underflow
+	JSR POP
+	ADD R5,R5,#0
+	BRp INVALID_EXP
+	ADD,R4,R0,#0
+	JSR POP
+	ADD R5,R5,#0
+	BRp INVALID_EXP
+	ADD,R3,R0,#0
+
+;Checks plus operator
+	LD R6,PLUS_CHAR	
+	NOT R6,R6
+	ADD R6,R6,#1
+	BRnp NEG_OPERATOR
+	JSR PLUS
+	JSR PUSH
+	LD R7,SAVE_R7
+	RET
+
+NEG_OPERATOR
+	LD R6,MINUS	
+	NOT R6,R6
+	ADD R6,R6,#1
+	BRnp DIV_OPERATOR
+	JSR MIN
+	LD R7,SAVE_R7
+	RET
+	
+DIV_OPERATOR
+	LD R6,DIV_CHAR	
+	NOT R6,R6
+	ADD R6,R6,#1
+	BRnp MUL_OPERATOR
+	JSR DIV
+	LD R7,SAVE_R7
+	RET
+
+MUL_OPERATOR
+	LD R6,MUL_CHAR	
+	NOT R6,R6
+	ADD R6,R6,#1
+	BRnp EXP_OPERATOR
+	JSR MUL
+	LD R7,SAVE_R7
+	RET
+
+EXP_OPERATOR
+	LD R6,MINUS	
+	NOT R6,R6
+	ADD R6,R6,#1
+	BRnp INVALID_EXP
+	JSR EXP
+	LD R7,SAVE_R7
+	RET
 
 ;your code goes here
 
