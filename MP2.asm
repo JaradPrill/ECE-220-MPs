@@ -1,7 +1,7 @@
 ;jaradjp2 
 ;bozhaoj2
 ;rohan
-;is this working? yes
+;is this working? no
 .ORIG x3000
     
 ;your code goes here
@@ -10,34 +10,31 @@ NEXT_CHAR
 	JSR EVALUATE
 	BRnzp NEXT_CHAR  
 
-
-
-
-
-
-
-
+INVALID_EXP
+	LD R0, INVALID_STRING	;
+	OUTS
+	HALT
+INVALID_STRING .STRINGZ "INVALID EXPRESSION"
 
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;R3- value to print in hexadecimal (use MP1)
 PRINT_HEX 
-.ORIG x3000
 ; let R0 be temp storage
 ; let R1 be char counter
 ; let R2 be bit counter for hex group
 ; let R3 be hex we want to print
 ; let R4 be storage for printing hex of interest
-            AND R5, R5, #0
-            ADD R5, R3, #0  ;put R3 into R5
-
 			AND R0, R0, #0
 			AND R3, R3, #0
+            AND R5, R5, #0
 			JSR POP
-			ADD R3,R0,#0
+            ADD R3, R0, #0
+            ADD R5, R3, #0  ;put R3 into R5
 			AND R1, R1, #0 	;Char counter
 			ADD R1, R1, #4	
+
 char_loop	BRz done		;if 4 chars printed, then finish
 			AND R4, R4, #0
 			AND R2, R2, #0
@@ -70,45 +67,45 @@ done        HALT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;R0 - character input from keyboard
 ;R5 - current numerical output
-;
-;
 EVALUATE
 	ST R7,SAVE_R7
 	OUT
 
 ;Check if character is =
-	LD R6, EQUALS	;Loads EQUALS to temp register
+	LD R6, EQUALS_CHAR	;Loads EQUALS to temp register
 	NOT R6,R6	
 	ADD R6,R6,#1	;Negates EQUALS
-	ADD R6,R0,R6	;Checks if input is equal char
+	ADD R6,R0,R6	;Checks if input is equal char by performing 
 	BRnp SPACE_CHECK
+EQUALS_CHAR .FILL x003D
 
 ;Check if expression is valid
 	LD R6,STACK_TOP	;Loads STACK_TOP to temp
-	AD R6,R6,#1	;Adds one to Stack top
+	ADD R6,R6,#1	;Adds one to Stack top
 	LD R5,STACK_START	;
 	NOT R5,R5
 	ADD R5,R5,#1
 	ADD R6,R6,R5		
 	BRz PRINT_HEX	;If expression is valid Print hex
+    JSR INVALID_EXP
 
-INVALID_EXP
-	LD R0,INVALID	;
-	OUTS
-	HALT
 
 
 ;Check if char is space
 SPACE_CHECK
-	LD R6, SPACE	;Load SPACE to temp register 
+	LD R6, SPACE_CHAR	;Load SPACE to temp register 
 	NOT R6,R6	
 	ADD R6,R6,#1	;Negates SPACE
 	ADD R6,R0,R6	;Checks if input is space char
+    BRnp DIGITS
+    LD R7, SAVE_R7
 	RET
+SPACE_CHAR .FILL x0020
 
 ;Check if is digit
-	LD R4,NINE	;
-	LD R3,ZERO	;
+DIGITS
+	LD R4,NINE_CHAR	;
+	LD R3,ZERO_CHAR	;
 	NOT R4,R4
 	ADD R4,R4,#1	;
 	NOT R3,R3
@@ -117,9 +114,13 @@ SPACE_CHECK
 	BRp OPERATORS	;
 	ADD R3,R3,R0
 	BRn OPERATORS
-	PUSH
+	JSR PUSH
+    LD R7, SAVE_R7
 	RET
+NINE_CHAR .FILL x0039
+ZERO_CHAR .FILL	x0030
 
+;checking operator
 OPERATORS
 ;Pops two numbers to be operated on
 ;Prints invalid expression if underflow
@@ -136,50 +137,62 @@ OPERATORS
 	LD R6,PLUS_CHAR	
 	NOT R6,R6
 	ADD R6,R6,#1
+    ADD R6,R0,R6
 	BRnp NEG_OPERATOR
 	JSR PLUS
 	JSR PUSH
 	LD R7,SAVE_R7
 	RET
+PLUS_CHAR .FILL x0043
 
 NEG_OPERATOR
-	LD R6,MINUS	
+	LD R6,MINUS_CHAR
 	NOT R6,R6
 	ADD R6,R6,#1
+    ADD R6, R0, R6
 	BRnp DIV_OPERATOR
 	JSR MIN
+    JSR PUSH
 	LD R7,SAVE_R7
 	RET
+MINUS_CHAR .FILL x0045
 	
 DIV_OPERATOR
 	LD R6,DIV_CHAR	
 	NOT R6,R6
 	ADD R6,R6,#1
+    ADD R6, R0, R6
 	BRnp MUL_OPERATOR
 	JSR DIV
+    JSR PUSH
 	LD R7,SAVE_R7
 	RET
+DIV_CHAR .FILL x002F
 
 MUL_OPERATOR
 	LD R6,MUL_CHAR	
 	NOT R6,R6
 	ADD R6,R6,#1
+    ADD R6, R0, R6
 	BRnp EXP_OPERATOR
 	JSR MUL
+    JSR PUSH
 	LD R7,SAVE_R7
 	RET
+MUL_CHAR .FILL x0042
 
 EXP_OPERATOR
-	LD R6,MINUS	
+	LD R6,EXP_CHAR	
 	NOT R6,R6
 	ADD R6,R6,#1
+    ADD R6, R0, R6
 	BRnp INVALID_EXP
 	JSR EXP
+    JSR PUSH
 	LD R7,SAVE_R7
 	RET
-
-;your code goes here
-
+EXP_CHAR .FILL x0094
+SAVE_R7 .BLKW #1
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4 (R3+R4)
@@ -272,7 +285,7 @@ PUSH
     ST R4, PUSH_SaveR4    ;save R4
     AND R5, R5, #0        ;
     LD R3, STACK_END    ;
-    LD R4, STACk_TOP    ;
+    LD R4, STACK_TOP    ;
     ADD R3, R3, #-1        ;
     NOT R3, R3        ;
     ADD R3, R3, #1        ;
