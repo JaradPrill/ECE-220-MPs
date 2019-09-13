@@ -11,10 +11,10 @@ NEXT_CHAR
 	BRnzp NEXT_CHAR  
 
 INVALID_EXP
-	LD R0, INVALID_STRING	;
-	OUTS
+	LEA R0, INVALID_STRING	;
+	PUTS
 	HALT
-INVALID_STRING .STRINGZ "INVALID EXPRESSION"
+INVALID_STRING .STRINGZ " INVALID EXPRESSION"
 
 
 
@@ -68,6 +68,7 @@ done        HALT
 ;R0 - character input from keyboard
 ;R5 - current numerical output
 EVALUATE
+	ST R0,SAVE_R0
 	ST R7,SAVE_R7
 	OUT
 
@@ -114,6 +115,12 @@ DIGITS
 	BRp OPERATORS	;
 	ADD R3,R3,R0
 	BRn OPERATORS
+
+	LD R3, ZERO_CHAR ;turns R0 into its decimal value
+	NOT R3, R3
+	ADD R3, R3, #1
+	ADD R0, R0, R3
+
 	JSR PUSH
     LD R7, SAVE_R7
 	RET
@@ -127,12 +134,12 @@ OPERATORS
 	JSR POP
 	ADD R5,R5,#0
 	BRp INVALID_EXP
-	ADD,R4,R0,#0
+	ADD R4,R0,#0
 	JSR POP
 	ADD R5,R5,#0
 	BRp INVALID_EXP
-	ADD,R3,R0,#0
-
+	ADD R3,R0,#0
+	LD R0, SAVE_R0 ;restore GETC char into R0
 ;Checks plus operator
 	LD R6,PLUS_CHAR	
 	NOT R6,R6
@@ -143,7 +150,7 @@ OPERATORS
 	JSR PUSH
 	LD R7,SAVE_R7
 	RET
-PLUS_CHAR .FILL x0043
+PLUS_CHAR .FILL x002B
 
 NEG_OPERATOR
 	LD R6,MINUS_CHAR
@@ -155,7 +162,7 @@ NEG_OPERATOR
     JSR PUSH
 	LD R7,SAVE_R7
 	RET
-MINUS_CHAR .FILL x0045
+MINUS_CHAR .FILL x002D
 	
 DIV_OPERATOR
 	LD R6,DIV_CHAR	
@@ -179,7 +186,7 @@ MUL_OPERATOR
     JSR PUSH
 	LD R7,SAVE_R7
 	RET
-MUL_CHAR .FILL x0042
+MUL_CHAR .FILL x002A
 
 EXP_OPERATOR
 	LD R6,EXP_CHAR	
@@ -191,9 +198,9 @@ EXP_OPERATOR
     JSR PUSH
 	LD R7,SAVE_R7
 	RET
-EXP_CHAR .FILL x0094
+EXP_CHAR .FILL x005E
 SAVE_R7 .BLKW #1
-
+SAVE_R0 .BLKW #1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4 (R3+R4)
 ;out R0
@@ -223,7 +230,8 @@ MUL_LOOP    ADD R4, R4, #-1
 ADD R0, R3, R0
 BRnzp MUL_LOOP
     
-MUL_DONE    RET
+MUL_DONE 
+	RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4 (R3/R4)
@@ -234,13 +242,15 @@ DIV
 AND R0, R0, #0    ;int R0    
 NOT R4, R4
 ADD R4, R4, #1    ;negate R4
-DIV_LOOP BRn DIV_DONE    ;R4>R3 so remainder which we don’t care about
+DIV_LOOP ADD R3, R4, R3
+BRn DIV_DONE    ;R4>R3 so remainder which we don’t care about
 ADD R0, R0, #1    ;Amount of times R4 fits into R3
 ADD R3, R3, #0    
 BRz DIV_DONE    ;Check if R4 cleanly divides into R3
 BRnzp DIV_LOOP
 
-DIV_DONE    RET
+DIV_DONE   
+ RET
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;input R3, R4 (R3^R4)
 ;out R0
@@ -339,4 +349,4 @@ STACK_START    .FILL x4000    ;
 STACK_TOP    .FILL x4000    ;
 
 
-.END    
+.END  
