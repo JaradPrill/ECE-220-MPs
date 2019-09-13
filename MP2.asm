@@ -1,7 +1,15 @@
-;jaradjp2 
-;bozhaoj2
-;rohan
-;is this working? no
+; Program Description
+; This program processes keypress inputs, adding them to the stack if they are numbers or performing 
+; operations on them if they are +, -, *, /, or ^. We check for stack underflow after popping twice before each operation 
+; to ensure that we are operating on the digit inputs. If an operator is seen, then the program calls the corresponding 
+; subroutine to perform the operation of the numbers in the stack. Then we push the result into the stack. This is repeated until
+; the user inputs "=" where we then check if there's only one value in the stack and print that value along with
+; storing the final result into R5. If anytime during the program the user inputs a character that isn't a digit
+; or operator then we print "INVALID EXPRESSION" and halt the program. This is also done if underflow occurs.
+
+;partners: jaradjp2, bozhaoj2, kamatar2
+
+;is this working? YES FINALLY
 .ORIG x3000
     
 ;your code goes here
@@ -10,9 +18,9 @@ NEXT_CHAR
 	JSR EVALUATE
 	BRnzp NEXT_CHAR  
 
-INVALID_EXP
-	LEA R0, INVALID_STRING	;
-	PUTS
+INVALID_EXP                 ;subroutine for invalid inputs
+	LEA R0, INVALID_STRING	
+	PUTS					;prints string
 	HALT
 INVALID_STRING .STRINGZ " INVALID EXPRESSION"
 
@@ -70,25 +78,25 @@ done        HALT
 EVALUATE
 	ST R0,SAVE_R0
 	ST R7,SAVE_R7
-	OUT
+	OUT					;echo to screen
 
 ;Check if character is =
 	LD R6, EQUALS_CHAR	;Loads EQUALS to temp register
 	NOT R6,R6	
-	ADD R6,R6,#1	;Negates EQUALS
-	ADD R6,R0,R6	;Checks if input is equal char by performing 
-	BRnp SPACE_CHECK
+	ADD R6,R6,#1		;Negates EQUALS
+	ADD R6,R0,R6		;Checks if input is '=' by performing R0-'='
+	BRnp SPACE_CHECK	;Branch to check space if the input != '='
 EQUALS_CHAR .FILL x003D
 
-;Check if expression is valid
-	LD R6,STACK_TOP	;Loads STACK_TOP to temp
-	ADD R6,R6,#1	;Adds one to Stack top
-	LD R5,STACK_START	;
+;input is '=', Check if stack only has one value
+	LD R6,STACK_TOP		;Loads STACK_TOP to R6
+	ADD R6,R6,#1		;Adds one to Stack top
+	LD R5,STACK_START	;Load STACK_START to R5
 	NOT R5,R5
-	ADD R5,R5,#1
-	ADD R6,R6,R5		
-	BRz PRINT_HEX	;If expression is valid Print hex
-    JSR INVALID_EXP
+	ADD R5,R5,#1		;negate R5 (storing STACK_START)
+	ADD R6,R6,R5		;perform (STACK_TOP+1)-STACK_START
+	BRz PRINT_HEX		;if there is only one value in stack branch to Print hex
+    JSR INVALID_EXP		;stack has more than one value, invalid
 
 
 
@@ -96,10 +104,10 @@ EQUALS_CHAR .FILL x003D
 SPACE_CHECK
 	LD R6, SPACE_CHAR	;Load SPACE to temp register 
 	NOT R6,R6	
-	ADD R6,R6,#1	;Negates SPACE
-	ADD R6,R0,R6	;Checks if input is space char
+	ADD R6,R6,#1		;Negates SPACE
+	ADD R6,R0,R6		;Checks if input is space char
     BRnp DIGITS
-    LD R7, SAVE_R7
+    LD R7, SAVE_R7      ;Succeded check so we return without pushing/popping
 	RET
 SPACE_CHAR .FILL x0020
 
@@ -108,20 +116,20 @@ DIGITS
 	LD R4,NINE_CHAR	;
 	LD R3,ZERO_CHAR	;
 	NOT R4,R4
-	ADD R4,R4,#1	;
+	ADD R4,R4,#1	;negates NINE_CHAR
 	NOT R3,R3
-	ADD R3,R3,#1	;
+	ADD R3,R3,#1	;negates ZERO_CHAR
 	ADD R4,R4,R0
-	BRp OPERATORS	;
+	BRp OPERATORS	;check if input is between '0' and '9'
 	ADD R3,R3,R0
-	BRn OPERATORS
+	BRn OPERATORS	;if input is not a digit then it must be something else
 
-	LD R3, ZERO_CHAR ;turns R0 into its decimal value
+	LD R3, ZERO_CHAR;turns R0 into its decimal value
 	NOT R3, R3
 	ADD R3, R3, #1
 	ADD R0, R0, R3
 
-	JSR PUSH
+	JSR PUSH        ;Input was a number so we push then return for a new GETC
     LD R7, SAVE_R7
 	RET
 NINE_CHAR .FILL x0039
@@ -139,13 +147,13 @@ OPERATORS
 	ADD R5,R5,#0
 	BRp INVALID_EXP
 	ADD R3,R0,#0
-	LD R0, SAVE_R0 ;restore GETC char into R0
-;Checks plus operator
-	LD R6,PLUS_CHAR	
+	LD R0, SAVE_R0  ;restore original GETC char into R0
+
+	LD R6,PLUS_CHAR	;Checks plus operator
 	NOT R6,R6
 	ADD R6,R6,#1
     ADD R6,R0,R6
-	BRnp NEG_OPERATOR
+	BRnp NEG_OPERATOR   ;check if R0 is the MINUS symbol next
 	JSR PLUS
 	JSR PUSH
 	LD R7,SAVE_R7
@@ -157,7 +165,7 @@ NEG_OPERATOR
 	NOT R6,R6
 	ADD R6,R6,#1
     ADD R6, R0, R6
-	BRnp DIV_OPERATOR
+	BRnp DIV_OPERATOR   ;check if R0 is the DIVITION symbol next
 	JSR MIN
     JSR PUSH
 	LD R7,SAVE_R7
@@ -169,7 +177,7 @@ DIV_OPERATOR
 	NOT R6,R6
 	ADD R6,R6,#1
     ADD R6, R0, R6
-	BRnp MUL_OPERATOR
+	BRnp MUL_OPERATOR   ;check if R0 is the MULTIPLICATION symbol next
 	JSR DIV
     JSR PUSH
 	LD R7,SAVE_R7
@@ -181,7 +189,7 @@ MUL_OPERATOR
 	NOT R6,R6
 	ADD R6,R6,#1
     ADD R6, R0, R6
-	BRnp EXP_OPERATOR
+	BRnp EXP_OPERATOR   ;check if R0 is the EXPONENTIAL symbol next
 	JSR MUL
     JSR PUSH
 	LD R7,SAVE_R7
@@ -193,7 +201,7 @@ EXP_OPERATOR
 	NOT R6,R6
 	ADD R6,R6,#1
     ADD R6, R0, R6
-	BRnp INVALID_EXP
+	BRnp INVALID_EXP    ;R0 was not a =, digit, +, -, /, *, or ^ so it must be an invalid input
 	JSR EXP
     JSR PUSH
 	LD R7,SAVE_R7
@@ -206,7 +214,7 @@ SAVE_R0 .BLKW #1
 ;out R0
 PLUS
 
-ADD R0, R3, R4    ;holy shit this is a bit too complicated
+ADD R0, R3, R4    ;By focusing all our big brains, we formulated this advanced function in a mere 10 hours
 RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -216,7 +224,7 @@ MIN
 
 NOT R4, R4
 ADD R4, R4, #1
-ADD R0, R3, R4
+ADD R0, R3, R4  ;invert R4 then add to R3 and store in R0
 RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -224,7 +232,7 @@ RET
 ;out R0
 ;TESTED: works
 MUL
-            ADD R0, R3, #0    ;in case R4 is 1
+            ADD R0, R3, #0    ;in case R4 is 1, R0 is just R3
 MUL_LOOP    ADD R4, R4, #-1    
             BRz MUL_DONE    ;We’ve added R3+R3 #R4 times
 ADD R0, R3, R0
@@ -242,7 +250,8 @@ DIV
 AND R0, R0, #0    ;int R0    
 NOT R4, R4
 ADD R4, R4, #1    ;negate R4
-DIV_LOOP ADD R3, R4, R3
+DIV_LOOP 
+ADD R3, R4, R3
 BRn DIV_DONE    ;R4>R3 so remainder which we don’t care about
 ADD R0, R0, #1    ;Amount of times R4 fits into R3
 ADD R3, R3, #0    
@@ -255,32 +264,32 @@ DIV_DONE
 ;input R3, R4 (R3^R4)
 ;out R0
 EXP
-    ST R6,EXP_SAVE_R6
+    ST R6,EXP_SAVE_R6	;save regs
     ST R5,EXP_SAVE_R5
 
     ADD R6,R3,#0    ;load base to R6
     ADD R0,R3,R4    ;R0=R3+R4
-    ;BRz INVALID     ;if R0=0, R3=R4=0, operation is invalid
+    ;BRz UNDEFINED     ;if R0=0, R3=R4=0, operation 0^0 is undefined
     ADD R4,R4,#0    
     BRp EXP_OUTER_LOOP  ;check if the exponent is 0
-    AND R0,R0,#0    ;clear R0
-    ADD R0,R0,#1    ;output should be 1 if exp is 0
+    AND R0,R0,#0		;clear R0
+    ADD R0,R0,#1		;output should be 1 if exp is 0
     LD R6,EXP_SAVE_R6
     RET
 EXP_OUTER_LOOP
-    ADD R4,R4,#-1   ;use R4 as a counter for the multiplication sequence
+    ADD R4,R4,#-1		;use R4 as a counter for the multiplication sequence
     BRz exp_done    
-    ADD R0,R6,#0    ;load base to R0 for counter
-    ADD R5,R3,#0    ;update the addition number
+    ADD R0,R6,#0		;load base to R0 for counter
+    ADD R5,R3,#0		;update the addition number
 EXP_INNER_LOOP
-    ADD R0,R0,#-1   ;commencing multiplication sequence, decrement counter
+    ADD R0,R0,#-1		;commencing multiplication sequence, decrement counter
     BRz EXP_OUTER_LOOP
-    ADD R3,R5,R3    ;update value of R3
+    ADD R3,R5,R3		;update value of R3
     BRnzp EXP_INNER_LOOP
 exp_done
-    ADD R0,R3,#0    ;load final result to R0
+    ADD R0,R3,#0		;load final result to R0
     LD R5,EXP_SAVE_R5
-    LD R6,EXP_SAVE_R6
+    LD R6,EXP_SAVE_R6	;restore reg
     RET
 EXP_SAVE_R5 .BLKW #1
 EXP_SAVE_R6 .BLKW #1    
