@@ -45,6 +45,7 @@ int main(){
             if (j_prime==1 && ij_prime==1) //checks if i and j and i/j are primes
             {
                 printf("%d ", i); //print i if both j and i/j are primes
+                break;
             }
          }
 
