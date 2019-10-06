@@ -99,15 +99,15 @@ void
 start_game (int* one, int* two, int* three, int* four)
 {
     guess_number = 1;
-    // solution1=rand() % 8 +1;
-    // solution2=rand() % 8 +1;
-    // solution3=rand() % 8 +1;
-    // solution4=rand() % 8 +1;
+    solution1=rand() % 8 +1;
+    solution2=rand() % 8 +1;
+    solution3=rand() % 8 +1;
+    solution4=rand() % 8 +1; //ensures that the number is between 1 and 8
 
-    solution1=5;
-    solution2=4;
-    solution3=4;
-    solution4=4; //set solution to definite, known string ONLY FOR TESTING
+    // solution1=5;
+    // solution2=4;
+    // solution3=4;
+    // solution4=4; //set solution to definite, known string ONLY FOR TESTING
 
     solution_array[0]=solution1;
     solution_array[1]=solution2;
@@ -154,7 +154,7 @@ make_guess (const char guess_str[], int* one, int* two,
     int valid_guess; //checks if 4 integers were entered
     char post[2];
     int temp_guess[4]; //temp array that stores the guess
-    int temp_solution_array[4];
+    int temp_solution_array[4]; //temp array that stores the solution
     valid_guess = sscanf (guess_str, "%d%d%d%d%1s", &w, &x, &y, &z, post);
     if (valid_guess ==4 && w>=1 && w<=8 && x>=1 && x<=8 && y>=1 && y<=8 && z>=1 && z<=8){ //checks if only 4 ints in range were entered
         temp_guess[0]=w;
@@ -166,10 +166,10 @@ make_guess (const char guess_str[], int* one, int* two,
         *three = y;
         *four = z;
         for (int i=0; i<=3; i++){
-            temp_solution_array[i]=solution_array[i];
+            temp_solution_array[i]=solution_array[i]; //build a temp solution array that we can change
         }
-        printf("solution = %d %d %d %d \n", temp_solution_array[0], temp_solution_array[1], temp_solution_array[2], temp_solution_array[3]);
-        printf("temp_guess before checks = %d %d %d %d \n", temp_guess[0], temp_guess[1], temp_guess[2], temp_guess[3]);
+        //printf("solution = %d %d %d %d \n", temp_solution_array[0], temp_solution_array[1], temp_solution_array[2], temp_solution_array[3]);
+        //printf("temp_guess before checks = %d %d %d %d \n", temp_guess[0], temp_guess[1], temp_guess[2], temp_guess[3]);
     }
     else{
         printf("make_guess: invalid guess\n");
@@ -182,15 +182,15 @@ make_guess (const char guess_str[], int* one, int* two,
            perfect_counter++;
        } 
     }
-    printf("solution after perfect checks = %d %d %d %d \n", temp_solution_array[0], temp_solution_array[1], temp_solution_array[2], temp_solution_array[3]);
-    printf("temp_guess after perfect checks = %d %d %d %d \n", temp_guess[0], temp_guess[1], temp_guess[2], temp_guess[3]);
+    //printf("solution after perfect checks = %d %d %d %d \n", temp_solution_array[0], temp_solution_array[1], temp_solution_array[2], temp_solution_array[3]);
+    //printf("temp_guess after perfect checks = %d %d %d %d \n", temp_guess[0], temp_guess[1], temp_guess[2], temp_guess[3]);
     for (int i=0; i<=3; i++){
         for (int j=0; j<=3; j++){
-            if (temp_solution_array[i]==temp_guess[j]){
-                temp_guess[j]=0;
+            if (temp_solution_array[i]==temp_guess[j]){ //sweep through the temp_guess array until a misplaced is found
+                temp_guess[j]=0; //same as perfect match check, we "pair" the values such that they can't match for anything else
                 temp_solution_array[i]=9;
                 misplaced_counter++;
-                j=4;
+                j=4; //if a misplaced is found for a solution value, move on to the next solution value
             }
         }
     }
