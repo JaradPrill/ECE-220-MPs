@@ -5,12 +5,29 @@
  */
 
 
-/*
- * The functions that you must write are defined in the header file.
- * Blank function prototypes with explanatory headers are provided
- * in this file to help you get started.
- */
+/* Program Description:
+    The set_seed function (called by main) takes the user input (stored in a char string) and convert
+    it to a integer representation using sscanf() while also checking only a single integer was entered by the user.
+    Then we give this integer "seed" to srand(). 
+    
+    The start_game function (called by main) generates the randomized solution to be stored into a solution
+    array of integers. We do this by applying modulus to a rand number such that the result is between 1 and 8.
+    We also store these solutions into and array that is used in the make_guess function. Finally we push the 
+    generated solutions into the main using pointers.
 
+    In make_guess(), we first check for a valid guess. This is done using sscanf and an if statement. 
+    Then, once we know the guess is valid, two temp arrays are initialized to store the solution and the 
+    guesses entered by the user. First, we use a iterative loop to check perfect match between the
+    solution and the guess; then we use two iterative loops to check for mismatches between the 2 arrays.
+    To avoid repetition, whenever there is a match (mis or perfect), we change the value at that specific
+    index to 0 (for the guess array) and 9 (for the solution array) so that these indexes would not be 
+    able to pair with other elements in the array.
+
+
+
+    partners: jaradjp2, bozhaoj2, kamatar2
+
+ */
 
 
 #include <stdio.h>
@@ -63,22 +80,7 @@ set_seed (const char seed_str[])
         printf("set_seed: invalid seed\n");
         return 0;
     }
-//    Example of how to use sscanf to read a single integer and check for anything other than the integer
-//    "int seed" will contain the number typed by the user (if any) and the string "post" will contain anything after the integer
-//    The user should enter only an integer, and nothing else, so we will check that only "seed" is read. 
-//    We declare
-//    int seed;
-//    char post[2];
-//    The sscanf statement below reads the integer into seed. 
-//    sscanf (seed_str, "%d%1s", &seed, post)
-//    If there is no integer, seed will not be set. If something else is read after the integer, it will go into "post".
-//    The return value of sscanf indicates the number of items read succesfully.
-//    When the user has typed in only an integer, only 1 item should be read sucessfully. 
-//    Check that the return value is 1 to ensure the user enters only an integer. 
-//    Feel free to uncomment these statements, modify them, or delete these comments as necessary. 
-//    You may need to change the return statement below
 }
-
 
 /*
  * start_game -- This function is called by main.c after set_seed but before the user makes guesses.
@@ -196,16 +198,6 @@ make_guess (const char guess_str[], int* one, int* two,
     }
     printf("With guess %d, you got %d perfect matches and %d misplaced matches.\n", guess_number, perfect_counter, misplaced_counter);
     guess_number++;
-//  One thing you will need to read four integers from the string guess_str, using a process
-//  similar to set_seed
-//  The statement, given char post[2]; and four integers w,x,y,z,
-//  sscanf (guess_str, "%d%d%d%d%1s", &w, &x, &y, &z, post)
-//  will read four integers from guess_str into the integers and read anything else present into post
-//  The return value of sscanf indicates the number of items sucessfully read from the string.
-//  You should check that exactly four integers were sucessfully read.
-//  You should then check if the 4 integers are between 1-8. If so, it is a valid guess
-//  Otherwise, it is invalid.  
-//  Feel free to use this sscanf statement, delete these comments, and modify the return statement as needed
     return 1;
 }
 
