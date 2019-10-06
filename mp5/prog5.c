@@ -99,10 +99,10 @@ void
 start_game (int* one, int* two, int* three, int* four)
 {
     guess_number = 1;
-    solution1=rand();
-    solution2=rand();
-    solution3=rand();
-    solution4=rand();
+    solution1=rand() % 8 +1;
+    solution2=rand() % 8 +1;
+    solution3=rand() % 8 +1;
+    solution4=rand() % 8 +1;
 
     *one = solution1;
     *two = solution2;
@@ -144,8 +144,8 @@ make_guess (const char guess_str[], int* one, int* two,
 	    int* three, int* four)
 {
     int x, y, z, w;
-    int perfect_counter; //counter for perfect matches
-    int misplaced_counter; //counter for misplaced matches
+    int perfect_counter = 0; //counter for perfect matches
+    int misplaced_counter = 0; //counter for misplaced matches
     int valid_guess; //checks if 4 integers were entered
     char post[2];
     int temp_guess[4]; //temp array that stores the guess
@@ -160,6 +160,7 @@ make_guess (const char guess_str[], int* one, int* two,
         *two = x;
         *three = y;
         *four = z;
+        printf("%d %d %d %d \n", solution_array[0], solution_array[1], solution_array[2], solution_array[3]);
     }
     else{
         printf("make_guess: invalid guess\n");
@@ -169,7 +170,6 @@ make_guess (const char guess_str[], int* one, int* two,
        if(solution_array[i]==temp_guess[i]){
            temp_guess[i]=0; //since a guess can only correspond to either a perfect or misplaced we set it to zero if it matches for one
            perfect_counter++;
-           break;
        } 
     }
     for (int i=0; i<=3; i++){
@@ -177,7 +177,7 @@ make_guess (const char guess_str[], int* one, int* two,
             if (solution_array[i]==temp_guess[j]){
                 temp_guess[j]=0;
                 misplaced_counter++;
-                break;
+                j=4;
             }
         }
     }
