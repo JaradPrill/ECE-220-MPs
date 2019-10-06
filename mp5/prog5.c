@@ -99,20 +99,25 @@ void
 start_game (int* one, int* two, int* three, int* four)
 {
     guess_number = 1;
-    solution1=rand() % 8 +1;
-    solution2=rand() % 8 +1;
-    solution3=rand() % 8 +1;
-    solution4=rand() % 8 +1;
+    // solution1=rand() % 8 +1;
+    // solution2=rand() % 8 +1;
+    // solution3=rand() % 8 +1;
+    // solution4=rand() % 8 +1;
 
-    *one = solution1;
-    *two = solution2;
-    *three = solution3;
-    *four = solution4;
+    solution1=5;
+    solution2=4;
+    solution3=4;
+    solution4=4; //set solution to definite, known string ONLY FOR TESTING
 
     solution_array[0]=solution1;
     solution_array[1]=solution2;
     solution_array[2]=solution3;
     solution_array[3]=solution4;
+
+    *one = solution1;
+    *two = solution2;
+    *three = solution3;
+    *four = solution4;
     
 }
 
@@ -149,40 +154,48 @@ make_guess (const char guess_str[], int* one, int* two,
     int valid_guess; //checks if 4 integers were entered
     char post[2];
     int temp_guess[4]; //temp array that stores the guess
+    int temp_solution_array[4];
     valid_guess = sscanf (guess_str, "%d%d%d%d%1s", &w, &x, &y, &z, post);
     if (valid_guess ==4 && w>=1 && w<=8 && x>=1 && x<=8 && y>=1 && y<=8 && z>=1 && z<=8){ //checks if only 4 ints in range were entered
         temp_guess[0]=w;
         temp_guess[1]=x;
         temp_guess[2]=y;
         temp_guess[3]=z;
-        guess_number++;
         *one = w;
         *two = x;
         *three = y;
         *four = z;
-        printf("%d %d %d %d \n", solution_array[0], solution_array[1], solution_array[2], solution_array[3]);
+        for (int i=0; i<=3; i++){
+            temp_solution_array[i]=solution_array[i];
+        }
+        printf("solution = %d %d %d %d \n", temp_solution_array[0], temp_solution_array[1], temp_solution_array[2], temp_solution_array[3]);
+        printf("temp_guess before checks = %d %d %d %d \n", temp_guess[0], temp_guess[1], temp_guess[2], temp_guess[3]);
     }
     else{
         printf("make_guess: invalid guess\n");
         return 0; 
     }
     for (int i=0; i<=3; i++){
-       if(solution_array[i]==temp_guess[i]){
+       if(temp_solution_array[i]==temp_guess[i]){
            temp_guess[i]=0; //since a guess can only correspond to either a perfect or misplaced we set it to zero if it matches for one
+           temp_solution_array[i]=9; //similarly, we set the solution to nine so it can't pair with another guess
            perfect_counter++;
        } 
     }
+    printf("solution after perfect checks = %d %d %d %d \n", temp_solution_array[0], temp_solution_array[1], temp_solution_array[2], temp_solution_array[3]);
+    printf("temp_guess after perfect checks = %d %d %d %d \n", temp_guess[0], temp_guess[1], temp_guess[2], temp_guess[3]);
     for (int i=0; i<=3; i++){
         for (int j=0; j<=3; j++){
-            if (solution_array[i]==temp_guess[j]){
+            if (temp_solution_array[i]==temp_guess[j]){
                 temp_guess[j]=0;
+                temp_solution_array[i]=9;
                 misplaced_counter++;
                 j=4;
             }
         }
     }
     printf("With guess %d, you got %d perfect matches and %d misplaced matches.\n", guess_number, perfect_counter, misplaced_counter);
-
+    guess_number++;
 //  One thing you will need to read four integers from the string guess_str, using a process
 //  similar to set_seed
 //  The statement, given char post[2]; and four integers w,x,y,z,
