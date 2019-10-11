@@ -20,8 +20,8 @@ int countLiveNeighbor(int* board, int boardRowSize, int boardColSize, int row, i
         if(i >= 0 && i < boardRowSize){
             for(j = (col-1); j <= (col+1); j++){
                 if(j>=0 && j<boardColSize){
-                    if(i != row && j != col){
-                        liveNeigbors += *(board+ (i*(boardColSize-1)) + j);
+                    if(i != row || j != col){ //changed from && to ||
+                        liveNeigbors += *(board+ (i*(boardColSize)) + j);
                     }
                 }
             }
@@ -43,12 +43,12 @@ void updateBoard(int* board, int boardRowSize, int boardColSize) {
     int oldBoard[boardRowSize*boardRowSize];
     int i;
     for(i = 0; i < boardColSize*boardRowSize; i++){
-        oldBoard[i] = board[i];
+        oldBoard[i] = *(board+i);
     }
     for(i = 0; i < boardRowSize*boardColSize; i++){
         liveNeigbors = countLiveNeighbor(oldBoard, boardRowSize, boardColSize, i/boardColSize, i%boardColSize);
-        if(liveNeigbors < 2 || liveNeigbors >3) board[i] = 0;
-        else if(liveNeigbors == 3) board[i] = 1;
+        if(liveNeigbors < 2 || liveNeigbors >3) *(board+i) = 0;
+        else if(liveNeigbors == 3) *(board+i) = 1;
 
     }
 }
@@ -68,16 +68,13 @@ int aliveStable(int* board, int boardRowSize, int boardColSize){
     int newBoard[boardRowSize*boardColSize];
     int i;
     for(i = 0; i < boardColSize*boardRowSize; i++){
-        newBoard[i] = board[i];
+        newBoard[i] = *(board+i);
     }
     updateBoard(newBoard, boardRowSize, boardColSize);
     for(i = 0; i < boardColSize*boardRowSize; i++){
-        if(board[i] != newBoard[i]) return 0;
+        if(*(board+i) != newBoard[i]) {
+            return 0;
+    }
     }
     return 1;
 }
-
-				
-				
-			
-
