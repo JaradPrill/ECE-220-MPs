@@ -124,7 +124,7 @@ DIGITS
 	ADD R3,R3,R0
 	BRn OPERATORS	;if input is not a digit then it must be something else
 
-	LD R3, ZERO_CHAR;turns R0 into its decimal value
+	LD R3,ZERO_CHAR	;turns R0 into its decimal value
 	NOT R3, R3
 	ADD R3, R3, #1
 	ADD R0, R0, R3
