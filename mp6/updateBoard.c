@@ -40,7 +40,7 @@ int countLiveNeighbor(int* board, int boardRowSize, int boardColSize, int row, i
  */
 void updateBoard(int* board, int boardRowSize, int boardColSize) {
     int liveNeigbors;
-    int oldBoard[boardRowSize*boardRowSize];
+    int oldBoard[boardColSize*boardRowSize];
     int i;
     for(i = 0; i < boardColSize*boardRowSize; i++){
         oldBoard[i] = *(board+i);
