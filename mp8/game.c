@@ -40,13 +40,13 @@ void remake_game(game ** _cur_game_ptr,int new_rows,int new_cols)
 	(*_cur_game_ptr)->cells = malloc(new_rows*new_cols*sizeof(cell));
 
 	 //YOUR CODE STARTS HERE:  Re-initialize all other variables in game struct
-    *_cur_game_ptr->rows = new_rows;
-    *_cur_game_ptr->cols = new_cols;
-    *_cur_game_ptr->score = 0;
+    (*_cur_game_ptr)->rows = new_rows;
+    (*_cur_game_ptr)->cols = new_cols;
+    (*_cur_game_ptr)->score = 0;
     int i,j;
     for(i = 0; i < new_rows; i ++){
         for( j = 0; j < new_cols; j ++){
-            *_cur_game_ptr->cells[i* new_cols + j] = -1;
+            (*_cur_game_ptr)->cells[i* new_cols + j] = -1;
         }
     }
 
@@ -86,6 +86,7 @@ int move_w(game * cur_game)
 */
 {
     //YOUR CODE STARTS HERE
+    int valid = 0;
     int i, j, k;
     int cols = cur_game->cols;
     int rows = cur_game->rows;
@@ -98,13 +99,19 @@ int move_w(game * cur_game)
     for(i =0; i<rows; i++){
         for(j = 0; j < cols; j++){
             if(cur_game->cells[i*cols+j] != -1){
-                for(k = 0; k < i; k++){
+                for(k = 0; k <= i; k++){
+                    int shifted = 0;
                     if(cur_game->cells[k*cols + j] == -1){
+                        valid = 1;
+                        shifted = 1;
                         cur_game->cells[k*cols+j] = cur_game->cells[i*cols +j];
                         cur_game->cells[i*cols+j] = -1;
-                        if(k!= 0 && cur_game->cells[k*cols + j] == cur_game->cells[(k-1)*cols + j] && merged[k-1][j] == 0){
-                            cur_game->cells[(k-1)*cols + j] = cur_game->cells[k*cols + j] * 2
-                            score += cur_game->cells[k*cols + j]*2;
+                    }
+                    if(shifted || k == i){
+                        if(k != 0 && cur_game->cells[k*cols+j] == cur_game->cells[(k-1)*cols+j] && merged[k-1][j] == 0){
+                            valid = 1;
+                            cur_game->cells[(k-1)*cols + j] = cur_game->cells[k*cols + j] * 2;
+                            cur_game->score  += cur_game->cells[k*cols + j]*2;
                             cur_game->cells[k*cols + j] = -1;
                             merged[k-1][j] = 1;
                         }
@@ -114,26 +121,40 @@ int move_w(game * cur_game)
             }
         }
     }
-    return 1;
+    return valid;
 };
 
 int move_s(game * cur_game) //slide down
 {
     //YOUR CODE STARTS HERE
+    int valid = 0;
     int i, j, k;
     int cols = cur_game->cols;
     int rows = cur_game->rows;
-    for(i =0; i<rows; i++){
+    int merged[rows][cols];
+    for(i = 0; i < rows; i ++){
+        for(j =0; j < cols; j++){
+            merged[i][j] = 0;
+        }
+    }
+    for(i = rows - 1; i >= 0; i--){
         for(j = 0; j < cols; j++){
             if(cur_game->cells[i*cols+j] != -1){
-                for(k = i+1; k < rows; k++){
+                for(k = rows-1; k >= i; k--){
+                    int shifted = 0;
                     if(cur_game->cells[k*cols + j] == -1){
+                        shifted = 1;
+                        valid = 1;
                         cur_game->cells[k*cols+j] = cur_game->cells[i*cols +j];
                         cur_game->cells[i*cols+j] = -1;
-                        if(k!= 0 && cur_game->cells[k*cols + j] == cur_game->cells[(k-1)*cols + j]){
-                            cur_game->cells[(k-1)*cols + j] = cur_game->cells[k*cols + j] * 2
-                            score += cur_game->cells[k*cols + j]*2;
+                    }
+                    if(shifted || k == i){
+                        if(k != (rows-1) && cur_game->cells[k*cols+j] == cur_game->cells[(k+1)*cols+j] && merged[k+1][j] == 0){
+                            valid = 1;
+                            cur_game->cells[(k+1)*cols + j] = cur_game->cells[k*cols + j] * 2;
+                            cur_game->score  += cur_game->cells[k*cols + j]*2;
                             cur_game->cells[k*cols + j] = -1;
+                            merged[k+1][j] = 1;
                         }
                         break;
                     }
@@ -141,22 +162,89 @@ int move_s(game * cur_game) //slide down
             }
         }
     }
-    return 1;
-
-    return 1;
+    return valid;
 };
 
 int move_a(game * cur_game) //slide left
 {
     //YOUR CODE STARTS HERE
+    int valid = 0;
+    int i, j, k;
+    int cols = cur_game->cols;
+    int rows = cur_game->rows;
+    int merged[rows][cols];
+    for(i = 0; i < rows; i ++){
+        for(j =0; j < cols; j++){
+            merged[i][j] = 0;
+        }
+    }
+    for(i =0; i<rows; i++){
+        for(j = 0; j < cols; j++){
+            if(cur_game->cells[i*cols+j] != -1){
+                for(k = 0; k <= j; k++){
+                    int shifted = 0;
+                    if(cur_game->cells[i*cols + k] == -1){
+                        shifted = 1;
+                        valid = 1;
+                        cur_game->cells[i*cols+k] = cur_game->cells[i*cols +j];
+                        cur_game->cells[i*cols+j] = -1;
+                    }
+                    if(shifted || k == j){
+                        if(k != 0 && cur_game->cells[i*cols+k] == cur_game->cells[i*cols+k-1] && merged[i][k-1] == 0){
+                            valid = 1;
+                            cur_game->cells[(i*cols) + k-1] = cur_game->cells[i*cols +k] * 2;
+                            cur_game->score  += cur_game->cells[i * cols + k]*2;
+                            cur_game->cells[i*cols + k] = -1;
+                            merged[i][k-1] = 1;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }    
 
-    return 1;
+    return valid;
 };
 
 int move_d(game * cur_game){ //slide to the right
     //YOUR CODE STARTS HERE
+    int valid = 0;
+    int i, j, k;
+    int cols = cur_game->cols;
+    int rows = cur_game->rows;
+    int merged[rows][cols];
+    for(i = 0; i < rows; i ++){
+        for(j =0; j < cols; j++){
+            merged[i][j] = 0;
+        }
+    }
+    for(i =0; i<rows; i++){
+        for(j = cols-1; j >= 0; j--){
+            if(cur_game->cells[i*cols+j] != -1){
+                for(k = cols-1; k >= j; k--){
+                    int shifted = 0;
+                    if(cur_game->cells[i*cols + k] == -1){
+                        shifted = 1;
+                        valid = 1;
+                        cur_game->cells[i*cols+k] = cur_game->cells[i*cols +j];
+                        cur_game->cells[i*cols+j] = -1;
+                    }if(shifted || k == j){
+                        if(k != cols-1 && cur_game->cells[i*cols+k] == cur_game->cells[i*cols+k+1] && merged[i][k+1] == 0){
+                            valid = 1;
+                            cur_game->cells[(i*cols) + k+1] = cur_game->cells[i*cols +k] * 2;
+                            cur_game->score  += cur_game->cells[i * cols + k]*2;
+                            cur_game->cells[i*cols + k] = -1;
+                            merged[i][k+1] = 1;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }    
 
-    return 1;
+    return valid;
 };
 
 int legal_move_check(game * cur_game)
