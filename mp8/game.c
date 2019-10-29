@@ -254,7 +254,23 @@ int legal_move_check(game * cur_game)
  */
 {
     //YOUR CODE STARTS HERE
+    int row = cur_game->rows;
+    int col = cur_game->cols;
+    int i,j;
+    int value = 0;
+    for (i=0; i<row; i++){
+        for (j=0; j<col; j++){
+            if (cur_game->cells[i*col+j] == -1) value = 1;
+            //check adjacent cells (horizontal)
+            if (j < col-1 && cur_game->cells[i*col+j]==cur_game->cells[i*col+j+1])  
+            value = 1;
+            //check adjacent cells (vertical)
+            if (i < row-1 && cur_game->cells[i*col+j]==cur_game->cells[(i+1)*col+j])  
+            value = 1;
+        }
+    }
 
+    return value;
     return 1;
 }
 
