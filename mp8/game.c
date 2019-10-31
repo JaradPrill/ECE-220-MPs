@@ -1,5 +1,10 @@
 #include "game.h"
+/* Intro Paragraph:
+In this program we implement the game 2048 using several functions, 4 of which are similar movement functions which handle merging and moving filled cells.
+The rest are helper functions which either make a game, remake a game, get the address of a cell of interest, and a legal move checker.
 
+Partners: Bozhaoj2, kamatar2, jaradjp2
+*/
 
 game * make_game(int rows, int cols)
 /*! Create an instance of a game structure with the given number of rows
