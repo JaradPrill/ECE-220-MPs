@@ -2,6 +2,25 @@
 #include <stdlib.h>
 #include "maze.h"
 
+/*
+Intro Paragraph:
+In this program we create a maze data structure from an input text file, then using depth first search, solve the maze.
+We use 4 functions to accompish this goal:
+    1. createMaze: In this we take in the file, extract the maze dimensions, and then build the maze in the cells
+        element of the maze data structure. While creating the cells element and the larger maze struct, we 
+        use malloc to allocate memory for these structs.
+    2. destroyMaze: This function simply frees up all the allocated memory once the maze has been solved.
+        This is done by first freeing the smaller, 1-D arrays that are pointed to by the values that compose
+        the "cells" 1-D array. 
+    3. printMaze: this functions uses two iterarative loops to print out the the entire maze in a visualization of a 
+        2-D array.
+    3. solveMazeDFS: this function uses recursion and backtracking to find a valid route to the end. we guess our path
+        through each location in the maze by fnding the empty spots and mark the empty spots as a pathway. when all the
+        check for all four directions fails, we will make the current location as visited back track to make changes to 
+        previous decisions.
+
+partners: Kamatar2, Bozhaoj2, jaradjp2
+*/
 
 /*
  * createMaze -- Creates and fills a maze structure from the given file
@@ -59,7 +78,7 @@ maze_t * createMaze(char * fileName)
         }
         fscanf(file, "%c", &c);//discard newline character after each row    
     }
-
+    fclose(file);
     return maze;
 }
 
@@ -125,21 +144,20 @@ int solveMazeDFS(maze_t * maze, int col, int row)
     if (col<0 || row<0 || row>=maze->height || col>=maze->width){ //check if outside of range
         return 0;
     }
-    if (maze->cells[row][col]!='S' && maze->cells[row][col]!='E'){
+    if (maze->cells[row][col]!='S' && maze->cells[row][col]!='E'){ //check if we at the start or the end
         if (maze->cells[row][col]!= ' '){ //return false if not empty
             return 0;
         }
     }
 
-    if (maze->cells[row][col]=='E'){
+    if (maze->cells[row][col]=='E'){ //if we have reached the end, we done
+        maze->cells[maze->startRow][maze->startColumn]='S';//restore starting position
         return 1;
     }
 
-    if (maze->cells[row][col]!='S')
-    {
-        maze->cells[row][col]='*'; //mark location as part of solution
-        //printMaze(maze);
-    }
+    maze->cells[row][col]='*'; //mark location as part of solution
+    
+    
 
     if (solveMazeDFS(maze, col-1, row)){
         return 1;
@@ -154,9 +172,8 @@ int solveMazeDFS(maze_t * maze, int col, int row)
         return 1;
     }
     
-    if (maze->cells[row][col]!='S'){
-        maze->cells[row][col]='~';
-    }
+    maze->cells[row][col]='~'; //mark as visited
+    
     
     return 0;
 }
