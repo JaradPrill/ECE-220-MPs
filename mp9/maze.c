@@ -12,40 +12,64 @@
  */
 maze_t * createMaze(char * fileName)
 {
-    // Your code here. Make sure to replace following line with your own code.
+    //Create file pointer to fileName given
     FILE *file;
-
-    //Create maze pointer and allocate memory
-    maze_t *maze = (maze_t*) malloc(sizeof(maze_t));
 
     //Open the text file containing maze structure
     file = fopen(fileName, "r");
+    if(file == NULL) printf("did not find file\n");
 
-    fscanf(file, "%d %d", &maze->height, &maze->width);
+    //Create maze pointer and allocate memory
+    maze_t * maze = malloc(sizeof(maze_t));
+    printf("successfully allocated maze structure\n");
+
+    int m, n;
+    fscanf(file, "%d %d", &m, &n);
+    printf("Width: %d Height: %d\n", n,m);
+
+    maze->width = n;
+    maze->height = m;
+    printf("assigned width and height %d\n", maze->height);
 
     //Allocate memory for cells row pointer 
-    maze->cells = malloc(sizeof(char)*maze->height);
-
+    maze->cells = malloc(sizeof(maze->cells)*(maze->height)); 
+    printf("allocated cell pointer array memory\n");
+    
+    
     //Allocate memory for the size of a row
     int i,j;
     for(i = 0; i < maze->height; i++){
-        maze->cells[i] = malloc(sizeof(char)* maze->width);
+        maze->cells[i] = malloc(sizeof(maze->cells[i]) * maze->width);
+        if(maze->cells[i] == NULL) printf("Didn't assign memory\n");
     }
+    printf("allocated memory in each char arrary\n");
+
+    //Discard unneeded newline
+    fscanf(file, "%c", &m);
+    
 
     //Populate each element of cells
     for(i = 0; i < maze->height; i++){
         for(j = 0; j < maze->width; j++){
-            fscanf(file, "%c", &maze->cells[i][j]);
-            if(maze->cells[i][j] == "S"){
+            fscanf(file, "%c", &m);
+            printf("Scanned: %c at lcoation [%d][%d]\n", m, i, j);
+            maze->cells[i][j] = m;
+            printf("stored char in [%d][%d]\n", i, j);
+            
+            if(maze->cells[i][j] == 'S'){
                 maze->startRow = i;
                 maze->startColumn = j;
             }
-            if(maze->cells[i][j] == "E"){
+            if(maze->cells[i][j] == 'E'){
                 maze->endRow = i;
                 maze->endColumn = j;
             }
+            
         }
+        fscanf(file, "%c", &m);    
+
     }
+    
 
     return maze;
 }
