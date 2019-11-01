@@ -114,5 +114,33 @@ void printMaze(maze_t * maze)
 int solveMazeDFS(maze_t * maze, int col, int row)
 {
     // Your code here. Make sure to replace following line with your own code.
+    if (col<0 || row<0 || row>=(maze->height) || col>=(maze->width)){ //check if outside of range
+        return 0;
+    }
+ 
+    if (maze->cells[row][col]!= " " && maze->cells[row][col]!="S"){ //checks if the cell is empty
+        return 0;
+    }
+    else if (maze->cells[row][col]=="E"){
+        return 1;
+    }
+    maze->cells[row][col]="*"; //mark location as part of solution
+
+    if (solveMazeDFS(maze, col-1, row)==1){
+        return 1;
+    }
+    if (solveMazeDFS(maze, col+1, row)==1){
+        return 1;
+    }
+    if (solveMazeDFS(maze, col, row+1)==1){
+        return 1;
+    }
+    if (solveMazeDFS(maze, col, row-1)==1){
+        return 1;
+    }
+    
+    maze->cells[row][col]="~";
+    solveMazeDFS(maze, col, row);
     return 0;
 }
+
