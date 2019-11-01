@@ -72,8 +72,17 @@ maze_t * createMaze(char * fileName)
  */
 void destroyMaze(maze_t * maze)
 {
-    // Your code here.
+    //free cells memory
+    int i;
+    for(i=0;i<maze->height;i++){
+        free(maze->cells[i]);
+    }
+
+    //frees entire struct
+    free(maze->cells);
+    free(maze);
 }
+
 
 /*
  * printMaze --  Prints out the maze in a human readable format (should look like examples)
