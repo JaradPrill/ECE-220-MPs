@@ -83,7 +83,6 @@ void destroyMaze(maze_t * maze)
     free(maze);
 }
 
-
 /*
  * printMaze --  Prints out the maze in a human readable format (should look like examples)
  * INPUTS:       maze -- pointer to maze structure that contains all necessary information 
@@ -105,7 +104,7 @@ void printMaze(maze_t * maze)
         {
             printf("%c",maze->cells[i][j]);
         }
-        if (i<row-1) //do not print new line for last row
+        //if (i<row-1) //do not print new line for last row
             printf("\n"); 
     }
 
@@ -123,33 +122,41 @@ void printMaze(maze_t * maze)
 int solveMazeDFS(maze_t * maze, int col, int row)
 {
     // Your code here. Make sure to replace following line with your own code.
-    if (col<0 || row<0 || row>=(maze->height) || col>=(maze->width)){ //check if outside of range
+    if (col<0 || row<0 || row>=maze->height || col>=maze->width){ //check if outside of range
         return 0;
     }
- 
-    if (maze->cells[row][col]!= " " && maze->cells[row][col]!="S"){ //checks if the cell is empty
-        return 0;
+    if (maze->cells[row][col]!='S' && maze->cells[row][col]!='E'){
+        if (maze->cells[row][col]!= ' '){ //return false if not empty
+            return 0;
+        }
     }
-    else if (maze->cells[row][col]=="E"){
-        return 1;
-    }
-    maze->cells[row][col]="*"; //mark location as part of solution
 
-    if (solveMazeDFS(maze, col-1, row)==1){
+    if (maze->cells[row][col]=='E'){
         return 1;
     }
-    if (solveMazeDFS(maze, col+1, row)==1){
+
+    if (maze->cells[row][col]!='S')
+    {
+        maze->cells[row][col]='*'; //mark location as part of solution
+        //printMaze(maze);
+    }
+
+    if (solveMazeDFS(maze, col-1, row)){
         return 1;
     }
-    if (solveMazeDFS(maze, col, row+1)==1){
+    if (solveMazeDFS(maze, col+1, row)){
         return 1;
     }
-    if (solveMazeDFS(maze, col, row-1)==1){
+    if (solveMazeDFS(maze, col, row+1)){
+        return 1;
+    }
+    if (solveMazeDFS(maze, col, row-1)){
         return 1;
     }
     
-    maze->cells[row][col]="~";
-    solveMazeDFS(maze, col, row);
+    if (maze->cells[row][col]!='S'){
+        maze->cells[row][col]='~';
+    }
+    
     return 0;
 }
-
