@@ -27,10 +27,10 @@ sp_tuples * load_tuples(char* input_file)
     int check;
     double c;
     do {
-        check = fscanf(file, "%d %d %f", &a, &b, &c); //ret 0 if nothing read
+        check = fscanf(file, "%d %d %lf", &a, &b, &c); //ret 0 if nothing read
         if (check!=0){
             tuples->nz++;
-            set_tuples(sp_tuples, a, b, c);
+            set_tuples(tuples, a, b, c);
         }
     } while (check!=0);
     
@@ -141,15 +141,17 @@ void save_tuples(char * file_name, sp_tuples * mat_t)
 {
     //open file for writing
     FILE * file;
-    file = fopen(file_name, "w")
+    file = fopen(file_name, "w");
 
     //print row and col values
     fprintf(file, "%d %d\n", mat_t->n, mat_t->m);
 
     //print tuples into file
     int i;
-    for(i=0; i<mat_t->nz, i++){
-        fprintf(file, "%d, %d, %f\n", mat_t->(tuples_head+i)->row,mat_t->(tuples_head+i)->col,mat_t->(tuples_head+i)->value);
+    sp_tuples_node *current = mat_t->tuples_head;
+    for(i=0; i<mat_t->nz; i++){
+        fprintf(file, "%d, %d, %lf\n", current->row, current->col, current->value);
+        current = current->next;
     }
 
 
