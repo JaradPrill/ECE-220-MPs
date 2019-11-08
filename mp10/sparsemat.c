@@ -20,8 +20,10 @@ sp_tuples * load_tuples(char* input_file)
     //read matrix size into sp_tuples
     int a, b;
     fscanf(file, "%d %d", &a, &b);
+
     tuples->m = a;
     tuples->n = b;
+
 
     //read tuples and build linked list
     int check;
@@ -29,10 +31,12 @@ sp_tuples * load_tuples(char* input_file)
     do {
         check = fscanf(file, "%d %d %lf", &a, &b, &c); //ret 0 if nothing read
         if (check!=0){
+            printf("found nonzero value, storing now\n");
             tuples->nz++;
             set_tuples(tuples, a, b, c);
+            printf("successfully stored value\n");
         }
-    } while (check!=0);
+    } while (feof(file));
     
     fclose(file);
     return NULL;
@@ -91,32 +95,41 @@ void delete_node(sp_tuples * mat_t, int row, int col){
 
 void set_tuples(sp_tuples * mat_t, int row, int col, double value)
 {
+    printf("entered set_touples fcn\n");
+
     if(value == 0) delete_node(mat_t, row, col);
     mat_t->nz += 1;
     sp_tuples_node *new = malloc(sizeof(sp_tuples_node));
+    printf("successfully allocated new node memory\n");
+
     new->col = col;
     new->row = row;
     new->value = value;
+    printf("successfullly stored members of set touples\n");
+
+
     sp_tuples_node *current = mat_t->tuples_head;
 
 
-    while(current != NULL){
+    do{
+        //Node needs to be inserted at HEAD
+        if(current == NULL || current->row > row || (current->row == row && current->col > col)){
+            new->next = current;
+            mat_t->tuples_head = new;
+            return;
+        }
+
+        printf("entered while loop\n");
         //A current node is found and value needs to be replaced
         if(current->row == row && current->col == col){
             current->value = value;
             free(new);
             return;
         }
-        //Node needs to be inserted at HEAD
-        if(current->row > row || (current->row == row && current->col > col)){
-            new->next = current;
-            mat_t->tuples_head = new;
-            return;
-        }
-        //Check if we are at tail before calling members of next
-        if(current->next == NULL) break;
+        
+        
         //Found non head location in list where node should be inserted
-        if(current->next->row >row || (current->next->row == row && current->next->col > col)){
+        if(current->next != NULL && (current->next->row >row || (current->next->row == row && current->next->col > col))){
             new->next = current->next;
             current->next = new;
             return;
@@ -124,10 +137,11 @@ void set_tuples(sp_tuples * mat_t, int row, int col, double value)
         }
         current = current->next;
 
-    }
+    }while(current->next != NULL);
 
-    //If list is empty or tail is reached
-    current->next = new;
+    //Tail node is reached
+    printf("Not in while loop\n");
+    current = new;
     new->next = NULL;
 
     return;
@@ -163,16 +177,21 @@ void save_tuples(char * file_name, sp_tuples * mat_t)
 
 sp_tuples * add_tuples(sp_tuples * matA, sp_tuples * matB){
     sp_tuples *matC = malloc(sizeof(sp_tuples));
-    matC->n = matA->n;
+    printf("allocated new matrix memory\n");
+    matC->n = 3;
+    printf("stored matC cols as %d\n", matC->n);
     matC->nz = 0;
-    matC->m = matA->m;
+    matC->m = 5;
+    printf("stored members of matrix C\n");
 
     sp_tuples_node *current = matA->tuples_head;
+    printf("created node pointer to first node\n");
 
     for(int i = 0; i < matA->nz; i++){
         set_tuples(matC, current->row, current->col, current->value);
         current = current->next;
     }
+    printf("copied c into a\n");
 
     current = matB->tuples_head;
     for(int j = 0; j < matB->nz; j++){
