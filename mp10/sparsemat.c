@@ -250,7 +250,7 @@ sp_tuples * mult_tuples(sp_tuples * matA, sp_tuples * matB){
         }
         currentA = currentA->next; //check next in matA
         // need to reset head pointer for B ?
-        currentB = matA->tuples_head; //not sure about this
+        currentB = matB->tuples_head; //not sure about this
     }
 
     return matC;
