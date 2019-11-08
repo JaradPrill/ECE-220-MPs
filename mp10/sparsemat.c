@@ -205,7 +205,48 @@ sp_tuples * add_tuples(sp_tuples * matA, sp_tuples * matB){
 
 
 sp_tuples * mult_tuples(sp_tuples * matA, sp_tuples * matB){ 
-    return NULL;
+    // mak sure if the inputs are of valid size: n1 == m2
+    if (matA->n != matB->m)
+        return NULL;
+    int i, j;
+    sp_tuples_node *currentA = matA->tuples_head;
+    sp_tuples_node *currentB = matB->tuples_head;
+
+    // create new matrix matC
+    sp_tuples * matC = malloc(sizeof(sp_tuples));
+    //initiate matrix C with the size mAxnB and nz = 0
+    matC->m = matA->m;
+    matC->n = matB->n;
+    matC->nz = 0;
+    // populate matrix C
+    for (i=0; i<matC->m; i++){
+        for (j=0; j<matC->n; i++){
+            set_tuples(matC, i, j, 0.0);
+        }
+    }
+
+    // pointer to head, create access to the link list for matC
+    sp_tuples_node *currentC = matC->tuples_head;
+
+    for(i=0; i<=matA->nz; i++) //FOR every non-zero entry in A 
+    { 
+        for (j=0; j<=matB->nz; j++) //FOR every non-zero element in B
+        {
+            // every element in B where the row is equal to the column of the element in A
+            if (currentB->row == currentA->col)
+            {
+                // accumulate value
+                currentC->value += currentA->value * currentB->value;
+                currentC = currentC->next; //get ready for next value
+            }
+            currentB = currentB->next; //check next in matB
+        }
+        currentA = currentA->next; //check next in matA
+        // need to reset head pointer for B ?
+        currentB = matA->tuples_head; //not sure about this
+    }
+
+    return matC;
 
 }
 
