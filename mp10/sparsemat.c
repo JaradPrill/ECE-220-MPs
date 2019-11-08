@@ -162,8 +162,25 @@ void save_tuples(char * file_name, sp_tuples * mat_t)
 
 
 sp_tuples * add_tuples(sp_tuples * matA, sp_tuples * matB){
+    sp_tuples *matC = malloc(sizeof(sp_tuples));
+    matC->n = matA->n;
+    matC->nz = 0;
+    matC->m = matA->m;
 
-	return NULL;
+    sp_tuples_node *current = matA->tuples_head;
+
+    for(int i = 0; i < matA->nz; i++){
+        set_tuples(matC, current->row, current->col, current->value);
+        current = current->next;
+    }
+
+    current = matB->tuples_head;
+    for(int j = 0; j < matB->nz; j++){
+        set_tuples(matC, current->row, current->col, gv_tuples(matC, current->row, current->col)+current->value);
+        current = current->next;
+    }
+
+	return matC;
 }
 
 
