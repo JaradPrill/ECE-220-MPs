@@ -203,7 +203,14 @@ sp_tuples * add_tuples(sp_tuples * matA, sp_tuples * matB){
 }
 
 
-
+/*
+INPUT: matrix A with size mAxnA, and with matrix B size mBxnB 
+INITIATE matrix C with the size mAxnB and nz = 0
+FOR every non-zero entry in A 
+    iA = row of current entry in A; jA = column of current entry in A
+    FOR every non-zero element in B with row iB = jA                
+        C_(iA,jB) = C_(iA,jB) + A_(iA,jA) * B_(iB,jB);              
+*/
 sp_tuples * mult_tuples(sp_tuples * matA, sp_tuples * matB){ 
     // mak sure if the inputs are of valid size: n1 == m2
     if (matA->n != matB->m)
