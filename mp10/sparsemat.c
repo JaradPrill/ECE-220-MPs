@@ -34,7 +34,31 @@ double gv_tuples(sp_tuples * mat_t,int row,int col)
 
 //Helper function delete node
 void delete_node(sp_tuples * mat_t, int row, int col){
-    
+    sp_tuples_node *current = mat_t->tuples_head;
+    while(current != NULL){
+        //Head node should be deleted
+        if(current->row == row && current->col == col){
+            free(current);
+            mat_t->nz --;
+            mat_t->tuples_head = NULL;
+            return;
+        }
+        //Break if we are on the tail node
+        if(current->next == NULL) break;
+
+        //None head touple found that needs to be deleted
+        if(current->next->row == row && current->next->col == col){
+            sp_tuples_node *temp = current->next;
+            current->next = temp->next;
+            free(temp);
+            mat_t->nz--;
+            return;
+        }
+        //Iterate to next node
+        current = current->next;
+    }
+
+    //Reached end of list with no Node found
     return;
 
 }
