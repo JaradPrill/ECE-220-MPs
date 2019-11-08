@@ -174,6 +174,14 @@ sp_tuples * mult_tuples(sp_tuples * matA, sp_tuples * matB){
 
 	
 void destroy_tuples(sp_tuples * mat_t){
+    sp_tuples_node *curr = mat_t->tuples_head;
+    while(curr != NULL){
+        sp_tuples_node *next = curr->next;
+        free(curr);
+        curr = next;
+    }
+	
+    free(mat_t);
 	
     return;
 }  
