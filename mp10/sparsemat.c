@@ -8,8 +8,33 @@
 
 
 sp_tuples * load_tuples(char* input_file)
-{
+{//use set_tuples to sort list as it is created
 
+    //open file for processing
+    FILE *file;
+    file = fopen(input_file, "r");
+
+    //allocate memory
+    sp_tuples * tuples = malloc(sizeof(sp_tuples));
+
+    //read matrix size into sp_tuples
+    int a, b;
+    fscanf(file, "%d %d", &a, &b);
+    tuples->m = a;
+    tuples->n = b;
+
+    //read tuples and build linked list
+    int check;
+    double c;
+    do {
+        check = fscanf(file, "%d %d %f", &a, &b, &c); //ret 0 if nothing read
+        if (check!=0){
+            tuples->nz++;
+            set_tuples(sp_tuples, a, b, c);
+        }
+    } while (check!=0);
+    
+    fclose(file);
     return NULL;
 }
 
@@ -114,7 +139,21 @@ void set_tuples(sp_tuples * mat_t, int row, int col, double value)
 
 void save_tuples(char * file_name, sp_tuples * mat_t)
 {
+    //open file for writing
+    FILE * file;
+    file = fopen(file_name, "w")
 
+    //print row and col values
+    fprintf(file, "%d %d\n", mat_t->n, mat_t->m);
+
+    //print tuples into file
+    int i;
+    for(i=0; i<mat_t->nz, i++){
+        fprintf(file, "%d, %d, %f\n", mat_t->(tuples_head+i)->row,mat_t->(tuples_head+i)->col,mat_t->(tuples_head+i)->value);
+    }
+
+
+    fclose(file);
 	return;
 }
 
