@@ -113,6 +113,7 @@ void set_tuples(sp_tuples * mat_t, int row, int col, double value)
 
 
     sp_tuples_node *current = mat_t->tuples_head;
+
     //List is empty
     //Set head pointer to new
     //set new next to empty
@@ -171,7 +172,7 @@ void set_tuples(sp_tuples * mat_t, int row, int col, double value)
 void save_tuples(char * file_name, sp_tuples * mat_t)
 {
     //open file for writing
-    FILE * file;
+    FILE * file = NULL;
     file = fopen(file_name, "w");
 
     //print row and col values
@@ -263,11 +264,16 @@ sp_tuples * mult_tuples(sp_tuples * matA, sp_tuples * matB){
 
 }
 
-
+/*
+* INPUT: Matrix mat_t
+* Iterates through matrix and frees each member,
+* then frees the matrix struct as well
+* OUTPUT: void
+*/
 	
 void destroy_tuples(sp_tuples * mat_t){
     sp_tuples_node *curr = mat_t->tuples_head;
-    sp_tuples_node *temp;
+    sp_tuples_node *temp = NULL;
     while(curr != NULL){
         temp = curr->next;
         free(curr);

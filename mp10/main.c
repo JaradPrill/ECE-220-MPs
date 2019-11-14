@@ -59,6 +59,7 @@ int main(int argc, char *argv[]){
 	printf("m_Ct = m_A*m_B multiplication in tuples:\n");
 	sp_tuples * m_Ct = mult_tuples(m_At,m_Bt);
 	printt(m_Ct);
+	printf("Printed matC from Multiply tuples\n");
 	
 	sp_tuples * sm_At = load_tuples("matrices/input_mats/sm_A.txt");
 	sp_tuples * sm_Bt = load_tuples("matrices/input_mats/sm_B.txt");
