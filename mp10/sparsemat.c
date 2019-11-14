@@ -3,7 +3,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+This program processes input .txt files and performs matrix addition and multiplication on them.
+This is done by creating a linked list rather than creating the entire array matrix due to their
+large size. Each node in the list holds a tuple, which indicates the location and value in the 
+matrix. The entire matrix is described by the sp_tuples data struct which defines the size, 
+count of non-zero values, as well as the head pointer of the linked list of tuple nodes.
 
+Partners: kamatar2, bozhaoj2, jaradjp2
+*/
 
 
 
