@@ -23,16 +23,14 @@ sp_tuples * load_tuples(char* input_file)
 
     tuples->m = a;
     tuples->n = b;
-
+    tuples->nz = 0;
+    tuples->tuples_head=NULL;
     //read tuples and build linked list
     double c;
     while (feof(file)==0)  {
         fscanf(file, "%d %d %lf", &a, &b, &c); 
-        //printf("found nonzero value, storing now\n");
         set_tuples(tuples, a, b, c);
-        //printf("successfully stored value\n");
     } 
-    
     fclose(file);
     return tuples;
 }
@@ -59,8 +57,11 @@ double gv_tuples(sp_tuples * mat_t,int row,int col)
 //Helper function delete node
 void delete_node(sp_tuples * mat_t, int row, int col){
     sp_tuples_node *current = mat_t->tuples_head;
-    while(current != NULL){
-        //Head node should be deleted
+
+    //Matrix is empty
+    if(current == NULL) return;
+
+    //Head node should be deleted
         if(current->row == row && current->col == col){
             free(current);
             mat_t->nz --;
@@ -68,6 +69,7 @@ void delete_node(sp_tuples * mat_t, int row, int col){
             return;
         }
 
+    while(current != NULL){   
         //Break if we are on the tail node
         if(current->next == NULL) break;
 
@@ -76,7 +78,7 @@ void delete_node(sp_tuples * mat_t, int row, int col){
             sp_tuples_node *temp = current->next;
             current->next = temp->next;
             free(temp);
-            mat_t->nz--;
+            mat_t->nz = mat_t->nz- 1;
             return;
         }
         //Iterate to next node
@@ -91,7 +93,6 @@ void delete_node(sp_tuples * mat_t, int row, int col){
 
 void set_tuples(sp_tuples * mat_t, int row, int col, double value)
 {
-    //printf("entered set_touples fcn\n");
 
     //If value is 0 delete node instead of adding
     //Jump to helper function delete node
@@ -104,17 +105,14 @@ void set_tuples(sp_tuples * mat_t, int row, int col, double value)
 
     //Allocate memory for new node
     sp_tuples_node *new = malloc(sizeof(sp_tuples_node));
-    //printf("successfully allocated new node memory\n");
 
     //Set new node members based on input
     new->col = col;
     new->row = row;
     new->value = value;
-    //printf("successfullly stored members of set touples\n");
 
 
     sp_tuples_node *current = mat_t->tuples_head;
-
     //List is empty
     //Set head pointer to new
     //set new next to empty
@@ -123,7 +121,6 @@ void set_tuples(sp_tuples * mat_t, int row, int col, double value)
         new->next=NULL;
         return;
     }
-
 
     //Node needs to be inserted at HEAD
     //Set head pointer to new
@@ -178,13 +175,13 @@ void save_tuples(char * file_name, sp_tuples * mat_t)
     file = fopen(file_name, "w");
 
     //print row and col values
-    fprintf(file, "%d %d\n", mat_t->n, mat_t->m);
+    fprintf(file, "%d %d\n", mat_t->m, mat_t->n);
 
     //print tuples into file
     int i;
     sp_tuples_node *current = mat_t->tuples_head;
     for(i=0; i<mat_t->nz; i++){
-        fprintf(file, "%d, %d, %lf\n", current->row, current->col, current->value);
+        fprintf(file, "%d %d %lf\n", current->row, current->col, current->value);
         current = current->next;
     }
 
@@ -197,21 +194,16 @@ void save_tuples(char * file_name, sp_tuples * mat_t)
 
 sp_tuples * add_tuples(sp_tuples * matA, sp_tuples * matB){
     sp_tuples *matC = malloc(sizeof(sp_tuples));
-    //printf("allocated new matrix memory\n");
-    matC->n = 3;
-    //printf("stored matC cols as %d\n", matC->n);
+    matC->m = matA->m;
     matC->nz = 0;
-    matC->m = 5;
-    //printf("stored members of matrix C\n");
+    matC->n = matA->n;
 
     sp_tuples_node *current = matA->tuples_head;
-    //printf("created node pointer to first node\n");
 
     while(current != NULL){
         set_tuples(matC, current->row, current->col, current->value);
         current = current->next;
     }
-    //printf("copied c into a\n");
 
     current = matB->tuples_head;
 
@@ -219,7 +211,6 @@ sp_tuples * add_tuples(sp_tuples * matA, sp_tuples * matB){
         set_tuples(matC, current->row, current->col, gv_tuples(matC, current->row, current->col)+current->value);
         current = current->next;
     }
-    //printf("Completed addition of A and B\n");
 
 	return matC;
 }
@@ -237,7 +228,7 @@ sp_tuples * mult_tuples(sp_tuples * matA, sp_tuples * matB){
     // mak sure if the inputs are of valid size: n1 == m2
     if (matA->n != matB->m)
         return NULL;
-    int i, j;
+    //int i, j;
     sp_tuples_node *currentA = matA->tuples_head;
     sp_tuples_node *currentB = matB->tuples_head;
 
@@ -247,26 +238,18 @@ sp_tuples * mult_tuples(sp_tuples * matA, sp_tuples * matB){
     matC->m = matA->m;
     matC->n = matB->n;
     matC->nz = 0;
-    // populate matrix C
-    for (i=0; i<matC->m; i++){
-        for (j=0; j<matC->n; i++){
-            set_tuples(matC, i, j, 0.0);
-        }
-    }
 
     // pointer to head, create access to the link list for matC
-    sp_tuples_node *currentC = matC->tuples_head;
+    //sp_tuples_node *currentC = matC->tuples_head;
 
-    while(current != NULL)//FOR every non-zero entry in A 
+    while(currentA != NULL)//FOR every non-zero entry in A 
     { 
-        for (j=0; j<=matB->nz; j++) //FOR every non-zero element in B
+        while(currentB != NULL) //FOR every non-zero element in B
         {
             // every element in B where the row is equal to the column of the element in A
             if (currentB->row == currentA->col)
             {
-                // accumulate value
-                currentC->value += currentA->value * currentB->value;
-                currentC = currentC->next; //get ready for next value
+                set_tuples(matC, currentA->row, currentB->col, gv_tuples(matC, currentA->row, currentB->col)+currentA->value*currentB->value);
             }
             currentB = currentB->next; //check next in matB
         }
@@ -284,14 +267,14 @@ sp_tuples * mult_tuples(sp_tuples * matA, sp_tuples * matB){
 	
 void destroy_tuples(sp_tuples * mat_t){
     sp_tuples_node *curr = mat_t->tuples_head;
+    sp_tuples_node *temp;
     while(curr != NULL){
-        sp_tuples_node *next = curr->next;
+        temp = curr->next;
         free(curr);
-        curr = next;
+        curr = temp;
+
     }
-	
-    free(mat_t);
-	
+    free(mat_t);	
     return;
 }  
 
