@@ -24,19 +24,14 @@ sp_tuples * load_tuples(char* input_file)
     tuples->m = a;
     tuples->n = b;
 
-
     //read tuples and build linked list
-    int check;
     double c;
-    do {
-        check = fscanf(file, "%d %d %lf", &a, &b, &c); //ret 0 if nothing read
-        if (check!=0){
-            printf("found nonzero value, storing now\n");
-            tuples->nz++;
-            set_tuples(tuples, a, b, c);
-            printf("successfully stored value\n");
-        }
-    } while (feof(file));
+    while (feof(file)==0)  {
+        fscanf(file, "%d %d %lf", &a, &b, &c); 
+        printf("found nonzero value, storing now\n");
+        set_tuples(tuples, a, b, c);
+        printf("successfully stored value\n");
+    } 
     
     fclose(file);
     return NULL;
@@ -110,24 +105,30 @@ void set_tuples(sp_tuples * mat_t, int row, int col, double value)
 
     sp_tuples_node *current = mat_t->tuples_head;
 
+    //List is empty
+    if(current==NULL){
+        mat_t->tuples_head=new;
+        new->next=NULL;
+        return;
+    }
 
-    do{
-        //Node needs to be inserted at HEAD
-        if(current == NULL || current->row > row || (current->row == row && current->col > col)){
-            new->next = current;
-            mat_t->tuples_head = new;
-            return;
-        }
+    //Node needs to be inserted at HEAD
+    if((current->row > row || (current->row == row && current->col > col))){
+        new->next = current;
+        mat_t->tuples_head = new;
+        return;
+    }
 
-        printf("entered while loop\n");
+    while(current!=NULL){ 
+
         //A current node is found and value needs to be replaced
         if(current->row == row && current->col == col){
             current->value = value;
             free(new);
             return;
         }
-        
-        
+
+
         //Found non head location in list where node should be inserted
         if(current->next != NULL && (current->next->row >row || (current->next->row == row && current->next->col > col))){
             new->next = current->next;
@@ -135,16 +136,17 @@ void set_tuples(sp_tuples * mat_t, int row, int col, double value)
             return;
 
         }
-        current = current->next;
 
-    }while(current->next != NULL);
 
-    //Tail node is reached
-    printf("Not in while loop\n");
-    current = new;
-    new->next = NULL;
-
-    return;
+        //Tail node is reached
+        if(current->next==NULL){
+            current->next = new;
+            new->next = NULL;
+            return;
+        }
+        current=current->next;
+        
+    }
 }
 
 
@@ -203,57 +205,9 @@ sp_tuples * add_tuples(sp_tuples * matA, sp_tuples * matB){
 }
 
 
-/*
-INPUT: matrix A with size mAxnA, and with matrix B size mBxnB 
-INITIATE matrix C with the size mAxnB and nz = 0
-FOR every non-zero entry in A 
-    iA = row of current entry in A; jA = column of current entry in A
-    FOR every non-zero element in B with row iB = jA                
-        C_(iA,jB) = C_(iA,jB) + A_(iA,jA) * B_(iB,jB);              
-*/
+
 sp_tuples * mult_tuples(sp_tuples * matA, sp_tuples * matB){ 
-    // mak sure if the inputs are of valid size: n1 == m2
-    if (matA->n != matB->m)
-        return NULL;
-    int i, j;
-    sp_tuples_node *currentA = matA->tuples_head;
-    sp_tuples_node *currentB = matB->tuples_head;
-
-    // create new matrix matC
-    sp_tuples * matC = malloc(sizeof(sp_tuples));
-    //initiate matrix C with the size mAxnB and nz = 0
-    matC->m = matA->m;
-    matC->n = matB->n;
-    matC->nz = 0;
-    // populate matrix C
-    for (i=0; i<matC->m; i++){
-        for (j=0; j<matC->n; i++){
-            set_tuples(matC, i, j, 0.0);
-        }
-    }
-
-    // pointer to head, create access to the link list for matC
-    sp_tuples_node *currentC = matC->tuples_head;
-
-    for(i=0; i<=matA->nz; i++) //FOR every non-zero entry in A 
-    { 
-        for (j=0; j<=matB->nz; j++) //FOR every non-zero element in B
-        {
-            // every element in B where the row is equal to the column of the element in A
-            if (currentB->row == currentA->col)
-            {
-                // accumulate value
-                currentC->value += currentA->value * currentB->value;
-                currentC = currentC->next; //get ready for next value
-            }
-            currentB = currentB->next; //check next in matB
-        }
-        currentA = currentA->next; //check next in matA
-        // need to reset head pointer for B ?
-        currentB = matB->tuples_head; //not sure about this
-    }
-
-    return matC;
+    return NULL;
 
 }
 
