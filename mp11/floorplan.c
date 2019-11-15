@@ -64,7 +64,7 @@ int is_leaf_node(node_t* ptr) {
 // Return 1 if the given slicing tree node is an internal node, and 0 otherwise.
 int is_internal_node(node_t* ptr) {
   // TODO: (remember to modify the return value appropriately)
-  if ((ptr->left!=NULL ||ptr->right!=NULL) && ptr->parent!=NULL) return 1; //has a leaf and a parent
+  if ((ptr->left!=NULL || ptr->right!=NULL)) return 1; //has a leaf
   return 0;
 }
 
@@ -72,6 +72,8 @@ int is_internal_node(node_t* ptr) {
 // Return 1 if the given subtree rooted at node 'b' resides in the subtree rooted at node 'a'.
 int is_in_subtree(node_t* a, node_t* b) {
   // TODO: (remember to modify the return value appropriately)
+  if (a==NULL)return 0; //stop once a bottom is reached
+    
   if (a==b || is_in_subtree(a->left, b) == 1 || is_in_subtree(a->right, b) == 1) return 1;
   return 0;
 }
@@ -162,16 +164,15 @@ void postfix_traversal(node_t* ptr, int* nth, expression_unit_t* expression) {
   postfix_traversal(ptr->left, nth, expression);
   postfix_traversal(ptr->right, nth, expression);
   if (ptr->module!=NULL){
-    expression[*nth].module = ptr->module->resource;
+    expression[*nth].module = ptr->module;
     expression[*nth].cutline = UNDEFINED_CUTLINE;
   }
   else {
     expression[*nth].module = NULL;
     expression[*nth].cutline = ptr->cutline;
   }
-  *nth++;
+  *nth=*nth + 1;
   return;
-
 }
 
 // get_total_resource
