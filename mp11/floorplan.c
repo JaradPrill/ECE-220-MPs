@@ -159,6 +159,19 @@ void postfix_traversal(node_t* ptr, int* nth, expression_unit_t* expression) {
   if(ptr == NULL) return;
 
   // TODO:
+  postfix_traversal(ptr->left, nth, expression);
+  postfix_traversal(ptr->right, nth, expression);
+  if (ptr->module!=NULL){
+    expression[*nth].module = ptr->module->resource;
+    expression[*nth].cutline = UNDEFINED_CUTLINE;
+  }
+  else {
+    expression[*nth].module = NULL;
+    expression[*nth].cutline = ptr->cutline;
+  }
+  *nth++;
+  return;
+
 }
 
 // get_total_resource
@@ -168,11 +181,13 @@ int get_total_resource(node_t* ptr)
   // TODO:
   int sum = 0;
   if (ptr!=NULL){
-    sum += ptr->module->resource; //add sum of current module
-    sum += get_total_resource(ptr->left); //add sum of modules of left-subtree
-    sum += get_total_resource(ptr->right); //add sum of modules of right-subtree
+    if (is_leaf_node(ptr)) { //sum if a leaf
+      sum += ptr->module->resource;
+    }
+    sum += get_total_resource(ptr->left); //add sum of left and right sub trees
+    sum += get_total_resource(ptr->right);
+    
   }
-
   return sum;
 }
 
