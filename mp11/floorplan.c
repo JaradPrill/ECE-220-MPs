@@ -135,29 +135,51 @@ void swap_topology(node_t* a, node_t* b) {
   assert(a->parent != NULL && b->parent != NULL);
  
   // TODO:
-  node_t* temp = a;
 
-  // change parent of b to parent of a, and change left/right children of a to point to b
+  //swap a's parent's correct child
   if (a->parent->left == a) { // a is the left child
-    a = b;
-    b->parent = a->parent;
+    a->parent->left = b;
   } 
-  else if (a->parent->right == a) { // a is the right child
-    a = b;
-    b->parent = a->parent;
+  else if (a->parent->right == a) { //a is the right child
+    a->parent->right = b;
   }
-
-  // change parent of a to parent of b, and change left/right children of b to point to a
-  if (b->parent->left == b) { // b is the left child
-    b = temp;
-    temp->parent = b->parent; //temp is a
+  //swap parents
+  node_t * temp_parent = b->parent;
+  a->parent = b->parent;
+  temp_parent->parent = a->parent;
+  
+  if (b->parent->left == b) {
+    b->parent->left = a;
   } 
-  else if (b->parent->right == b) { // b is the right child
-    b = temp;
-    temp->parent = b->parent;
+  else if (b->parent->right == b) {
+    b->parent->right = a;
   }
   
-  return;
+
+
+
+
+  // change parent of b to parent of a, and change left/right children of a to point to b
+  // if (a->parent->left == a) { // a is the left child
+  //   a->parent->left = b;
+  //   b->parent = a->parent;
+  // } 
+  // else if (a->parent->right == a) { // a is the right child
+  //   a->parent->right = b;
+  //   b->parent = a->parent;
+  // }
+
+  // // change parent of a to parent of b, and change left/right children of b to point to a
+  // if (b->parent->left == b) { // b is the left child
+  //   b->parent->left = temp;
+  //   temp->parent = b->parent; //temp is a
+  // } 
+  // else if (b->parent->right == b) { // b is the right child
+  //   b->parent->right = temp;
+  //   temp->parent = b->parent;
+  // }
+
+  // return;
 }
 
 // Procedure: get_expression
