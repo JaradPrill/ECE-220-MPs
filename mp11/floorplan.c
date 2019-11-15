@@ -160,7 +160,7 @@ void swap_topology(node_t* a, node_t* b) {
  
   // TODO:
   node_t* temp = a;
-  node_t* bpar = b->parent;
+  node_t* bpar = b->parent; // temp to hold original pointer to parent of b
 
   // change parent of b to parent of a, and change left/right children of a to point to b
   if (a->parent->left == a) { // a is the left child
@@ -173,6 +173,7 @@ void swap_topology(node_t* a, node_t* b) {
   }
 
   // change parent of a to parent of b, and change left/right children of b to point to a
+  // b->parent was changed, use the original parent pointer stored ealier
   if (bpar->left == b) { // b is the left child
     bpar->left = temp;
     temp->parent = bpar; //temp is a
