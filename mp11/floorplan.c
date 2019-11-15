@@ -38,7 +38,31 @@ void floorplan(const char file[]) {
   area = optimize(root, num_nodes);
   pnt_modules();
   printf("Packing area = %.5e (has overlapped? %d (1:yes, 0:no))\n", area, is_overlapped());
+  // TODO:
+  node_t* temp = a;
+  node_t* bpar = b->parent;
 
+  // change parent of b to parent of a, and change left/right children of a to point to b
+  if (a->parent->left == a) { // a is the left child
+    a->parent->left = b;
+    b->parent = a->parent;
+  } 
+  else if (a->parent->right == a) { // a is the right child
+    a->parent->right = b;
+    b->parent = a->parent;
+  }
+
+  // change parent of a to parent of b, and change left/right children of b to point to a
+  if (bpar->left == b) { // b is the left child
+    bpar->left = temp;
+    temp->parent = bpar; //temp is a
+  }
+  else if (bpar->right == b) { // b is the right child
+    bpar->right = temp;
+    temp->parent = bpar;
+  }
+  
+  return;
   // Output your floorplan.
   printf("Draw floorplan to %s\n", outfile);
   draw_modules(outfile);
@@ -136,7 +160,8 @@ void swap_topology(node_t* a, node_t* b) {
  
   // TODO:
   node_t* temp = a;
-  
+  node_t* bpar = b->parent;
+
   // change parent of b to parent of a, and change left/right children of a to point to b
   if (a->parent->left == a) { // a is the left child
     a->parent->left = b;
@@ -148,14 +173,16 @@ void swap_topology(node_t* a, node_t* b) {
   }
 
   // change parent of a to parent of b, and change left/right children of b to point to a
-  if (b->parent->left == b) { // b is the left child
-    b->parent->left = temp;
-    temp->parent = b->parent; //temp is a
+  if (bpar->left == b) { // b is the left child
+    bpar->left = temp;
+    temp->parent = bpar; //temp is a
   }
-  else if (b->parent->right == b) { // b is the right child
-    b->parent->right = temp;
-    temp->parent = b->parent;
+  else if (bpar->right == b) { // b is the right child
+    bpar->right = temp;
+    temp->parent = bpar;
   }
+  
+  return;
 }
 
 // Procedure: get_expression
