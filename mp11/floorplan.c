@@ -56,6 +56,7 @@ void floorplan(const char file[]) {
 // Return 1 if the given slicing tree node is a leave node, and 0 otherwise.
 int is_leaf_node(node_t* ptr) {
   // TODO: (remember to modify the return value appropriately)
+  if (ptr->left == NULL && ptr->right==NULL) return 1;
   return 0;
 }
 
@@ -63,6 +64,7 @@ int is_leaf_node(node_t* ptr) {
 // Return 1 if the given slicing tree node is an internal node, and 0 otherwise.
 int is_internal_node(node_t* ptr) {
   // TODO: (remember to modify the return value appropriately)
+  if ((ptr->left!=NULL ||ptr->right!=NULL) && ptr->parent!=NULL) return 1; //has a leaf and a parent
   return 0;
 }
 
@@ -70,6 +72,7 @@ int is_internal_node(node_t* ptr) {
 // Return 1 if the given subtree rooted at node 'b' resides in the subtree rooted at node 'a'.
 int is_in_subtree(node_t* a, node_t* b) {
   // TODO: (remember to modify the return value appropriately)
+  if (a==b || is_in_subtree(a->left, b) == 1 || is_in_subtree(a->right, b) == 1) return 1;
   return 0;
 }
 
@@ -78,6 +81,10 @@ int is_in_subtree(node_t* a, node_t* b) {
 // and the width of the modules are swapped.
 void rotate(node_t* ptr) {
   // TODO: 
+  int temp;
+  temp = ptr->module->h;
+  ptr->module->h = ptr->module->w;
+  ptr->module->w = temp;
 }
 
 // Procedure: recut
@@ -100,6 +107,10 @@ void swap_module(node_t* a, node_t* b) {
   assert(b->module != NULL && b->cutline == UNDEFINED_CUTLINE);
 
   // TODO:
+  module_t* temp;
+  temp = b->module;
+  b->module = a->module;
+  a->module = temp;
 }
 
 // Procedure: swap_topology
@@ -155,8 +166,14 @@ void postfix_traversal(node_t* ptr, int* nth, expression_unit_t* expression) {
 int get_total_resource(node_t* ptr)
 {
   // TODO:
+  int sum = 0;
+  if (ptr!=NULL){
+    sum += ptr->module->resource; //add sum of current module
+    sum += get_total_resource(ptr->left); //add sum of modules of left-subtree
+    sum += get_total_resource(ptr->right); //add sum of modules of right-subtree
+  }
 
-  return 0;
+  return sum;
 }
 
 // Procedure: init_slicing_tree
