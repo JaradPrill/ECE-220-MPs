@@ -96,6 +96,15 @@ void recut(node_t* ptr) {
   assert(ptr->module == NULL && ptr->cutline != UNDEFINED_CUTLINE);
 
   // TODO:
+  if (ptr->cutline == V)
+  {
+    ptr->cutline = H;
+  }
+  else
+  {
+    ptr->cutline = V;
+  }
+  
   return;
 }
 
@@ -124,6 +133,29 @@ void swap_topology(node_t* a, node_t* b) {
   assert(a->parent != NULL && b->parent != NULL);
  
   // TODO:
+  node_t* temp = a;
+
+  // change parent of b to parent of a, and change left/right children of a to point to b
+  if (a->parent->left == a) { // a is the left child
+    a->parent->left = b;
+    b->parent = a->parent;
+  } 
+  else if (a->parent->right == a) { // a is the right child
+    a->parent->right = b;
+    b->parent = a->parent;
+  }
+
+  // change parent of a to parent of b, and change left/right children of b to point to a
+  if (b->parent->left == b) { // b is the left child
+    b->parent->left = temp;
+    temp->parent = b->parent; //temp is a
+  } 
+  else if (b->parent->right == b) { // b is the right child
+    b->parent->right = temp;
+    temp->parent = b->parent;
+  }
+  
+  return;
 }
 
 // Procedure: get_expression
