@@ -38,7 +38,31 @@ void floorplan(const char file[]) {
   area = optimize(root, num_nodes);
   pnt_modules();
   printf("Packing area = %.5e (has overlapped? %d (1:yes, 0:no))\n", area, is_overlapped());
+  // TODO:
+  node_t* temp = a;
+  node_t* bpar = b->parent;
 
+  // change parent of b to parent of a, and change left/right children of a to point to b
+  if (a->parent->left == a) { // a is the left child
+    a->parent->left = b;
+    b->parent = a->parent;
+  } 
+  else if (a->parent->right == a) { // a is the right child
+    a->parent->right = b;
+    b->parent = a->parent;
+  }
+
+  // change parent of a to parent of b, and change left/right children of b to point to a
+  if (bpar->left == b) { // b is the left child
+    bpar->left = temp;
+    temp->parent = bpar; //temp is a
+  }
+  else if (bpar->right == b) { // b is the right child
+    bpar->right = temp;
+    temp->parent = bpar;
+  }
+  
+  return;
   // Output your floorplan.
   printf("Draw floorplan to %s\n", outfile);
   draw_modules(outfile);
@@ -56,7 +80,7 @@ void floorplan(const char file[]) {
 // Return 1 if the given slicing tree node is a leave node, and 0 otherwise.
 int is_leaf_node(node_t* ptr) {
   // TODO: (remember to modify the return value appropriately)
-  if (ptr->left == NULL && ptr->right==NULL) return 1;
+  if (ptr->left == NULL && ptr->right==NULL) return 1;//no children therefore a leaf
   return 0;
 }
 
@@ -72,9 +96,9 @@ int is_internal_node(node_t* ptr) {
 // Return 1 if the given subtree rooted at node 'b' resides in the subtree rooted at node 'a'.
 int is_in_subtree(node_t* a, node_t* b) {
   // TODO: (remember to modify the return value appropriately)
-  if (a==NULL)return 0; //stop once a bottom is reached
+  if (a==NULL)return 0; //stop once a bottom is reached (base case)
     
-  if (a==b || is_in_subtree(a->left, b) == 1 || is_in_subtree(a->right, b) == 1) return 1;
+  if (a==b || is_in_subtree(a->left, b) == 1 || is_in_subtree(a->right, b) == 1) return 1;//recursive call itself to check if b is somwhere underneath a
   return 0;
 }
 
@@ -84,7 +108,7 @@ int is_in_subtree(node_t* a, node_t* b) {
 void rotate(node_t* ptr) {
   // TODO: 
   int temp;
-  temp = ptr->module->h;
+  temp = ptr->module->h; //swap the w and h using a temp
   ptr->module->h = ptr->module->w;
   ptr->module->w = temp;
 }
@@ -119,7 +143,7 @@ void swap_module(node_t* a, node_t* b) {
 
   // TODO:
   module_t* temp;
-  temp = b->module;
+  temp = b->module; //swap modules using a temp
   b->module = a->module;
   a->module = temp;
 }
@@ -135,51 +159,30 @@ void swap_topology(node_t* a, node_t* b) {
   assert(a->parent != NULL && b->parent != NULL);
  
   // TODO:
-
-  //swap a's parent's correct child
-  if (a->parent->left == a) { // a is the left child
-    a->parent->left = b;
-  } 
-  else if (a->parent->right == a) { //a is the right child
-    a->parent->right = b;
-  }
-  //swap parents
-  node_t * temp_parent = b->parent;
-  a->parent = b->parent;
-  temp_parent->parent = a->parent;
-  
-  if (b->parent->left == b) {
-    b->parent->left = a;
-  } 
-  else if (b->parent->right == b) {
-    b->parent->right = a;
-  }
-  
-
-
-
+  node_t* temp = a;
+  node_t* bpar = b->parent;
 
   // change parent of b to parent of a, and change left/right children of a to point to b
-  // if (a->parent->left == a) { // a is the left child
-  //   a->parent->left = b;
-  //   b->parent = a->parent;
-  // } 
-  // else if (a->parent->right == a) { // a is the right child
-  //   a->parent->right = b;
-  //   b->parent = a->parent;
-  // }
+  if (a->parent->left == a) { // a is the left child
+    a->parent->left = b;
+    b->parent = a->parent;
+  } 
+  else if (a->parent->right == a) { // a is the right child
+    a->parent->right = b;
+    b->parent = a->parent;
+  }
 
-  // // change parent of a to parent of b, and change left/right children of b to point to a
-  // if (b->parent->left == b) { // b is the left child
-  //   b->parent->left = temp;
-  //   temp->parent = b->parent; //temp is a
-  // } 
-  // else if (b->parent->right == b) { // b is the right child
-  //   b->parent->right = temp;
-  //   temp->parent = b->parent;
-  // }
-
-  // return;
+  // change parent of a to parent of b, and change left/right children of b to point to a
+  if (bpar->left == b) { // b is the left child
+    bpar->left = temp;
+    temp->parent = bpar; //temp is a
+  }
+  else if (bpar->right == b) { // b is the right child
+    bpar->right = temp;
+    temp->parent = bpar;
+  }
+  
+  return;
 }
 
 // Procedure: get_expression
@@ -217,11 +220,11 @@ void postfix_traversal(node_t* ptr, int* nth, expression_unit_t* expression) {
   // TODO:
   postfix_traversal(ptr->left, nth, expression);
   postfix_traversal(ptr->right, nth, expression);
-  if (ptr->module!=NULL){
+  if (ptr->module!=NULL){ //if the node is a module, store the module into expression array
     expression[*nth].module = ptr->module;
     expression[*nth].cutline = UNDEFINED_CUTLINE;
   }
-  else {
+  else {//if the node is a cutline, store the cutline into expression array
     expression[*nth].module = NULL;
     expression[*nth].cutline = ptr->cutline;
   }
@@ -235,7 +238,7 @@ int get_total_resource(node_t* ptr)
 {
   // TODO:
   int sum = 0;
-  if (ptr!=NULL){
+  if (ptr!=NULL){ //bottom reached
     if (is_leaf_node(ptr)) { //sum if a leaf
       sum += ptr->module->resource;
     }
