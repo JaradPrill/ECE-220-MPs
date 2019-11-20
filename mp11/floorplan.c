@@ -280,7 +280,36 @@ int get_total_resource(node_t* ptr)
 node_t* init_slicing_tree(node_t* par, int n) {
   
   assert(n >= 0 && n < num_modules);
+  node_t* ptr = (node_t*)malloc(sizeof(node_t));
+  ptr->parent = par;
 
+  //Base Case: check if program has recursed to last module
+  //If true, assign data to that node and return
+  if(n == (num_modules - 1)){
+    ptr->module = &modules[n];
+    ptr->cutline = UNDEFINED_CUTLINE;
+    ptr->left = NULL;
+    ptr->right = NULL;
+    return ptr;
+  }
+  
+  //Recursive case:
+  //Populate data for ptr as a cutline
+  ptr->cutline = V;
+  ptr->module = NULL;
+
+  //Create right child and populate
+  ptr->right = (node_t*)malloc(sizeof(node_t));
+  ptr->right->module = &modules[n];
+  ptr->right->right = NULL;
+  ptr->right->left = NULL;
+  ptr->right->parent = ptr;
+  ptr->right->cutline = UNDEFINED_CUTLINE;
+
+  ptr->left = init_slicing_tree(ptr,n+1);
+
+  return ptr;
+  
   // TODO:
   return NULL;
 }
