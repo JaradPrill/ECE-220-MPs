@@ -73,6 +73,11 @@ void floorplan(const char file[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // FUNCTIONS/PROCEDURES YOU HAVE TO FINISH.                                                      //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+//Intro: This MP implements functions used to optimize a floorplan such as on a PCB.
+// The functions implemented are 
+// init_slicing_tree: creates an intiial tree structure - not optimized, is_leaf, is_internal,
+// is_in_subtree, rotate, recut, swap_module, swap_topology, get_expression, get_total_resource
+// Partners: kamatar2, jaradjp2, bozhaoj2
 
 
 
@@ -292,7 +297,7 @@ node_t* init_slicing_tree(node_t* par, int n) {
     ptr->right = NULL;
     return ptr;
   }
-  
+
   //Recursive case:
   //Populate data for ptr as a cutline
   ptr->cutline = V;
