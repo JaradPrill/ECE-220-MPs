@@ -38,31 +38,7 @@ void floorplan(const char file[]) {
   area = optimize(root, num_nodes);
   pnt_modules();
   printf("Packing area = %.5e (has overlapped? %d (1:yes, 0:no))\n", area, is_overlapped());
-  // TODO:
-  node_t* temp = a;
-  node_t* bpar = b->parent;
 
-  // change parent of b to parent of a, and change left/right children of a to point to b
-  if (a->parent->left == a) { // a is the left child
-    a->parent->left = b;
-    b->parent = a->parent;
-  } 
-  else if (a->parent->right == a) { // a is the right child
-    a->parent->right = b;
-    b->parent = a->parent;
-  }
-
-  // change parent of a to parent of b, and change left/right children of b to point to a
-  if (bpar->left == b) { // b is the left child
-    bpar->left = temp;
-    temp->parent = bpar; //temp is a
-  }
-  else if (bpar->right == b) { // b is the right child
-    bpar->right = temp;
-    temp->parent = bpar;
-  }
-  
-  return;
   // Output your floorplan.
   printf("Draw floorplan to %s\n", outfile);
   draw_modules(outfile);
@@ -73,10 +49,17 @@ void floorplan(const char file[]) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // FUNCTIONS/PROCEDURES YOU HAVE TO FINISH.                                                      //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-//Intro: This MP implements functions used to optimize a floorplan such as on a PCB.
+//Program Intro: 
+// This MP implements functions used to optimize a floorplan such as on a PCB.
+// The details such as horizontal or vertial cut and values of each module that pertains to a 
+// floorplan is stored in the form of a binary tree. This tree is built and accessed by pointers;
+// for example, the root can point to a parent, and that parent can have pointers to its left child
+// and its right child.
 // The functions implemented are 
 // init_slicing_tree: creates an intiial tree structure - not optimized, is_leaf, is_internal,
 // is_in_subtree, rotate, recut, swap_module, swap_topology, get_expression, get_total_resource
+
+
 // Partners: kamatar2, jaradjp2, bozhaoj2
 
 
