@@ -93,6 +93,25 @@ double Sphere::getRadius()const{return radius_;}
 //Please implement the member functions of RectPrism:
 //constructor, getArea(), getVolume(), operator+, operator-
 //@@Insert your code here
+RectPrism::RectPrism(double width, double length, double height):Shape("RectPrism"){
+	length_=length;
+	width_=width;
+	height_=height;
+}
+
+double RectPrism::getVolume() const{return length_*width_*height_;}
+double RectPrism::getArea() const{
+	return (2*(length_*width_))+(2*(length_*height_))+(2*(height_*width_));
+}
+
+RectPrism RectPrism::operator+(const RectPrism& rectp) {
+	return RectPrism(width_+rectp.width_, length_+rectp.length_,height_+rectp.height_);
+}
+
+RectPrism RectPrism::operator-(const RectPrism& rectp) {
+	double a=0;
+	return RectPrism(max(a, width_-rectp.width_), max(a, length_-rectp.length_),max(a, height_-rectp.height_));
+}
 
 
 double RectPrism::getWidth()const{return width_;}
@@ -110,6 +129,7 @@ vector<Shape*> CreateShapes(char* file_name){
 	string name;
 	ifstream ifs ("test.txt", std::ifstream::in);
 	ifs >> number_shapes; 
+	cout<<number_shapes<<endl;
 	for (int i = 0; i<number_shapes; i++)
 	{
 		ifs >> name;
@@ -135,7 +155,7 @@ vector<Shape*> CreateShapes(char* file_name){
 			Shape* shape_ptr = new RectPrism(w,l,h);
 		}
 	}
-	ifs.close;
+	ifs.close();
 	return myshapes; // please remeber to modify this line to return the correct value
 }
 
