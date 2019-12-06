@@ -143,7 +143,12 @@ vector<Shape*> CreateShapes(char* file_name){
 double MaxArea(vector<Shape*> shapes){
 	double max_area = 0;
 	//@@Insert your code here
-	
+	int i;
+	for(i=0; i<sizeof(shapes); i++) {
+		if(shapes[i]->getArea() > max_area) {
+			max_area = shapes[i]->getArea();
+		}
+	}
 	return max_area;
 }
 
@@ -153,8 +158,11 @@ double MaxArea(vector<Shape*> shapes){
 double MaxVolume(vector<Shape*> shapes){
 	double max_volume = 0;
 	//@@Insert your code here
-
-	
+	int i;
+	for(i=0; i<sizeof(shapes); i++) {
+		if(shapes[i]->getVolume() > max_volume) {
+			max_volume = shapes[i]->getVolume();
+		}
+	}
 	return max_volume;
 }
-
