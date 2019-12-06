@@ -1,7 +1,7 @@
 #include "shape.hpp"
 #include <math.h>
 
-
+//Partners: kamatar2, jaradjp2, bozhaoj2
 
 //Base class
 //Please implement Shape's member functions
@@ -127,33 +127,35 @@ vector<Shape*> CreateShapes(char* file_name){
 	vector<Shape*> myshapes;
 	int number_shapes;
 	string name;
-	ifstream ifs ("test.txt", std::ifstream::in);
+	ifstream ifs ("test1.txt", std::ifstream::in);
 	ifs >> number_shapes; 
-	cout<<number_shapes<<endl;
 	for (int i = 0; i<number_shapes; i++)
 	{
 		ifs >> name;
+		cout<<name<<endl;
+		Shape* shape_ptr = NULL;
 		if (name == "Circle"){
 			double r;
 			ifs >> r;
-			Shape* shape_ptr = new Circle(r);
+			shape_ptr = new Circle(r);
 		}
 		if (name == "Rectangle"){
 			double w,h;
 			ifs >> w >> h;
-			Shape* shape_ptr = new Rectangle(w,h);
+			shape_ptr = new Rectangle(w,h);
 
 		}
 		if (name == "Sphere"){
 			double r;
 			ifs >> r;
-			Shape* shape_ptr = new Sphere(r);
+			shape_ptr = new Sphere(r);
 		}
 		if (name == "RectPrism"){
 			double w,l,h;
 			ifs >> w >> l >> h;
-			Shape* shape_ptr = new RectPrism(w,l,h);
+			shape_ptr = new RectPrism(w,l,h);
 		}
+		myshapes.push_back(shape_ptr);
 	}
 	ifs.close();
 	return myshapes; // please remeber to modify this line to return the correct value
@@ -165,7 +167,8 @@ double MaxArea(vector<Shape*> shapes){
 	double max_area = 0;
 	//@@Insert your code here
 	int i;
-	for(i=0; i<sizeof(shapes); i++) {
+	cout<<shapes.size()<<endl;
+	for(i=0; i<shapes.size(); i++) {
 		if(shapes[i]->getArea() > max_area) {
 			max_area = shapes[i]->getArea();
 		}
@@ -180,7 +183,7 @@ double MaxVolume(vector<Shape*> shapes){
 	double max_volume = 0;
 	//@@Insert your code here
 	int i;
-	for(i=0; i<sizeof(shapes); i++) {
+	for(i=0; i<shapes.size(); i++) {
 		if(shapes[i]->getVolume() > max_volume) {
 			max_volume = shapes[i]->getVolume();
 		}
